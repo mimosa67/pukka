@@ -69,6 +69,15 @@ parser.add_argument('-d', '--download', action="store",
         dest='download', default='',
         help = 'Download package source and previous package')
 
+parser.add_argument('-ns', '--nosource', action="store_true",
+        default=False,
+        help='Do not download package source files')
+
+parser.add_argument('-np', '--nopackage', action="store_true",
+        default=False,
+        help='Do not download package files (just get source)')
+
+
 parser.add_argument('-s', '--stable', action="store",
         dest='stable', default='14.0',
         help = 'Specify stable release, default 14.0')
@@ -91,10 +100,11 @@ packager = args.packager
 pkg = args.package
 expa = args.expa
 download = args.download
+download_source = not args.nosource
+download_package = not args.nopackage
 stable = args.stable
 current = args.current
 mirror = args.mirror
-
 slash = '/'
 
 def guessArch(arg):
@@ -258,9 +268,11 @@ def getSource(pkg):
         sourceURL = urlbase + '/source' + subdir[6:] + pkg + slash
         packageURL = urlbase + subdir
         #download package source files to a directory
-        getFiles(pkg, '-sourcefiles', wgetSourceCommand, sourceURL)
+        if download_source:
+            getFiles(pkg, '-sourcefiles', wgetSourceCommand, sourceURL)
         #download package files to another directory
-        getFiles(pkg, '-packagefiles', wgetPackageCommand, packageURL)
+        if download_package:
+            getFiles(pkg, '-packagefiles', wgetPackageCommand, packageURL)
 
     else:
         print "Package not available in Salix ", stable
