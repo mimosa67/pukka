@@ -176,15 +176,6 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
     os.rename(pkgtxt, filename)
     clean()
 
-#for pkg in data:
-#	if data[pkg][deps]='':
-#	    print "nodeps", pkg
-#
-#deps = 3
-#for dep in data['giblib'][deps].split(","):
-#    print dep
-
-
 def clean():
     """
     Remove any stray PACKAGES.TXT file or archive
@@ -194,24 +185,6 @@ def clean():
         os.remove(pkgtxtz)
     if os.path.isfile(pkgtxt):
         os.remove(pkgtxt)
-
-def main():
-    #download databases if absent or if update requested, rename
-    for target in {'slackware-', 'salix-'}:
-        for release in {stable, current}:
-            filename = target + repo + '_' + release 
-            if expa != slash:
-                filename = filename + expa
-            if update or not os.path.isfile(filename):    
-                pkgtxturl(repo, target, release, expa)
-
-    #carry out specified actions
-    if download:
-        getSource(download)
-    if packager != '':
-        listPackages(packager)
-    if pkg != '':
-        listDeps(pkg)
 
 def listPackages(nick):
     """
@@ -287,5 +260,30 @@ def getFiles(pkg, dirsuffix, command, url):
     os.system(command + url)
     os.chdir('..')
 
+def listDeps(pkg):
+    """
+    Check repos for package and, if it is unpackaged in Salix current,
+    check its dependencies recursively.
+    """
+    #Problems: if a package is renamed between releases, deps like jdk|jre
+    pass
+
+def main():
+    #download databases if absent or if update requested, rename
+    for target in {'slackware-', 'salix-'}:
+        for release in {stable, current}:
+            filename = target + repo + '_' + release 
+            if expa != slash:
+                filename = filename + expa
+            if update or not os.path.isfile(filename):    
+                pkgtxturl(repo, target, release, expa)
+
+    #carry out specified actions
+    if download:
+        getSource(download)
+    if packager:
+        listPackages(packager)
+    if pkg:
+        listDeps(pkg)
 if __name__ == '__main__':
     main()
