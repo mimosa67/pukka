@@ -29,7 +29,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. #
 #                                                                             #
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
-
 import os
 import sys
 import urllib2
@@ -77,6 +76,11 @@ parser.add_argument('-np', '--nopackage', action="store_true",
         default=False,
         help='Do not download package files (just get source)')
 
+parser.add_argument('-nd', '--nodeps', action="store_true",
+        default=False,
+        help='Do not check dependencies (just check package)')
+
+
 
 parser.add_argument('-s', '--stable', action="store",
         dest='stable', default='14.0',
@@ -102,6 +106,7 @@ expa = args.expa
 download = args.download
 download_source = not args.nosource
 download_package = not args.nopackage
+checkdeps= not args.nodeps
 stable = args.stable
 current = args.current
 mirror = args.mirror
@@ -192,14 +197,18 @@ def listPackages(nick):
     listPackages(nick)
     """
     pkgtxtnameBase = 'salix-' + repo + '_'
-    dbStable = Package.parse(Package(), pkgtxtnameBase + stable)
-    dbCurrent = Package.parse(Package(), pkgtxtnameBase + current)
+    dbStable = repoToDict('salix-', stable)
+    dbCurrent = repoToDict('salix-', current)
     for package in dbStable:
         pname = stripRelease(dbStable[package][2])
         if pname == nick: # this is one he did
             if not elem(package,dbCurrent):
                 print package, ' ',
     print
+
+def repoToDict(target, release):
+    pkgtxtname = target + repo + '_' + release
+    return Package.parse(Package(), pkgtxtname)
 
 def stripRelease(pkgrel):
     """
@@ -284,6 +293,12 @@ def main():
     if packager:
         listPackages(packager)
     if pkg:
-        listDeps(pkg)
+        if nodeps:
+            #just check one package
+            pass
+        else:
+            pkgdict = makedict()
+            listDeps(pkg, pkgdict)
+
 if __name__ == '__main__':
     main()
