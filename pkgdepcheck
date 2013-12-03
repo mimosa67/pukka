@@ -199,12 +199,15 @@ def listPackages(nick):
     pkgtxtnameBase = 'salix-' + repo + '_'
     dbStable = repoToDict('salix-', stable)
     dbCurrent = repoToDict('salix-', current)
+    p = []
     for package in dbStable:
         pname = stripRelease(dbStable[package][2])
         if pname == nick: # this is one he did
             if not elem(package,dbCurrent):
-                print package, ' ',
-    print
+                p.append(package)
+    p = sorted(p)
+    for pkg in p:
+        print pkg
 
 def repoToDict(target, release):
     pkgtxtname = target + repo + '_' + release
