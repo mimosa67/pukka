@@ -277,6 +277,18 @@ def listDeps(pkg):
     #Problems: if a package is renamed between releases, deps like jdk|jre
     pass
 
+def makedict():
+    """
+    Returns a dictionary associating each package name with four
+    boolean variables to indicate whether it is resent in that repo
+    """
+    dbSalixStable = repoToDict('salix-', stable)
+    dbSalixCurrent = repoToDict('salix-', current)
+    dbSlackStable = repoToDict('slackware-', stable)
+    dbSlackCurrent = repoToDict('slackware-', current)
+    #for dep in data['giblib'][deps].split(","):
+    pass
+
 def main():
     #download databases if absent or if update requested, rename
     for target in {'slackware-', 'salix-'}:
