@@ -269,7 +269,7 @@ def getFiles(pkg, dirsuffix, command, url):
     os.system(command + url)
     os.chdir('..')
 
-def listDeps(pkg):
+def listDeps(pkg, pkgdict):
     """
     Check repos for package and, if it is unpackaged in Salix current,
     check its dependencies recursively.
@@ -305,12 +305,13 @@ def main():
     if packager:
         listPackages(packager)
     if pkg:
-        if nodeps:
+        if not checkdeps:
             #just check one package
             pass
         else:
             pkgdict = makedict()
             listDeps(pkg, pkgdict)
+            pass
 
 if __name__ == '__main__':
     main()
