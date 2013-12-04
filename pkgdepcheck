@@ -374,8 +374,8 @@ def main():
             #just check one package
             display(query(pkg, repos))
             if elem(pkg, repos[slxstable]):
-                pkgrelfield = 4
-                pkgrel = repos[slxstable][pgrelfield]
+                pkgrelfield = 2
+                pkgrel = repos[slxstable][pkg][pkgrelfield]
                 print pkg, "was packaged by", stripRelease(pkgrel), "for", stable
         else:
             pkgdict = summary(repos)
