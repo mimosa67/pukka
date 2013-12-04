@@ -112,6 +112,8 @@ current = args.current
 mirror = args.mirror
 slash = '/'
 
+# repo index vars
+slxstable, slxcurrent, slkstable, slkcurrent = 0, 1, 2, 3
 def guessArch(arg):
     """
     If the user input contains the string '64', choose that repo, otherwise i486.
@@ -124,6 +126,7 @@ def guessArch(arg):
 arch = args.arch
 repo = guessArch(arch)
 
+##### The following functions pkgtxturl and clean download PACKAGES.TXT
 
 def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
     """
@@ -191,6 +194,8 @@ def clean():
     if os.path.isfile(pkgtxt):
         os.remove(pkgtxt)
 
+##### The following functions listPackages and stripRelease are for the --packager option
+
 def listPackages(nick):
     """
     List packages packaged by someone before but not yet this time
@@ -209,10 +214,6 @@ def listPackages(nick):
     for pkg in p:
         print pkg
 
-def repoToDict(target, release):
-    pkgtxtname = target + repo + '_' + release
-    return Package.parse(Package(), pkgtxtname)
-
 def stripRelease(pkgrel):
     """
     Strip digits from left recursively
@@ -225,6 +226,16 @@ def stripRelease(pkgrel):
     else:
         return pkgrel
 
+##### The following are general helper functions
+
+def repoToDict(target, release):
+    """
+    Convert PACKAGES.TXT file to a dictionary
+    repoToDict(target, release)
+    """
+    pkgtxtname = target + repo + '_' + release
+    return Package.parse(Package(), pkgtxtname)
+
 def elem(item, listobj):
     """
     There must be a library function that does this
@@ -234,6 +245,8 @@ def elem(item, listobj):
         if i == item:
             return True
     return False
+
+##### The following functions getSource and getFiles relate to --download option
 
 def getSource(pkg):
     """
@@ -272,25 +285,69 @@ def getFiles(pkg, dirsuffix, command, url):
     os.system(command + url)
     os.chdir('..')
 
-def listDeps(pkg, pkgdict):
-    """
-    Check repos for package and, if it is unpackaged in Salix current,
-    check its dependencies recursively.
-    """
-    #Problems: if a package is renamed between releases, deps like jdk|jre
-    pass
+##### The remaining functions correspond to the --package option, including dependencies
 
-def makedict():
+def parseRepos():
+    """
+    Convert each repo to dict, return list of all four
+    parseRepos()
+    """
+    repos = []
+    for target in ['salix-', 'slackware-']:
+        for repo in [stable, current]:
+            repos.append(repoToDict(target, repo))
+    return repos
+
+def summary(repos):
     """
     Returns a dictionary associating each package name with four
-    boolean variables to indicate whether it is resent in that repo
+    boolean variables to indicate whether it is present in each repo
+    
     """
-    dbSalixStable = repoToDict('salix-', stable)
-    dbSalixCurrent = repoToDict('salix-', current)
-    dbSlackStable = repoToDict('slackware-', stable)
-    dbSlackCurrent = repoToDict('slackware-', current)
-    #for dep in data['giblib'][deps].split(","):
-    pass
+    #create list of packages from all repos
+    pkglist = []
+    for db in repos:
+        for pkg in db:
+            if not elem(pkg, pkglist):
+                pkglist.append(pkg)
+
+    #create dictionary from list
+    return {pkg:query(pkg, repos) for pkg in pkglist}
+
+def query(pkg, repos):
+    profile = []
+    for repo in repos: 
+        profile.append(elem (pkg, repo))
+    return profile
+
+def display(isPresent):
+    """
+    Output messages about package status per repo
+    """
+    if isPresent[slxcurrent]:
+        print pkg, "has already been packaged for ", current
+    elif not isPresent[slxstable]:
+        print pkg, "was not packaged for ", stable
+    else:
+        print pkg, "has not been packaged yet.",
+        if isPresent[slkcurrent]:
+            print "However, there is a Slackware package for it."
+        else:
+            print
+
+def listDeps(package, pkgdict, repos):
+    deps = []
+    depfield = 3
+    s = repos[slxstable]
+    c = repos[slxcurrent]
+    S = repos[slkstable]
+    C = repos[slkcurrent]
+    for dep in s[package][depfield].split(","):
+        if not elem(dep, c):
+            deps.append(dep)
+            if not elem(dep, S) and not elem('|', dep):
+                deps.append(listDeps(dep, pkgdict, repos))
+    return deps
 
 def main():
     #download databases if absent or if update requested, rename
@@ -308,13 +365,20 @@ def main():
     if packager:
         listPackages(packager)
     if pkg:
+        #make dictionaries
+        repos = parseRepos()
         if not checkdeps:
             #just check one package
-            pass
+            display(query(pkg, repos))
         else:
-            pkgdict = makedict()
-            listDeps(pkg, pkgdict)
-            pass
+            pkgdict = summary(repos)
+            if not elem(pkg,pkgdict):
+                print "There is no package for", pkg
+            elif pkgdict[pkg][slxstable]:
+                for dep in sorted(listDeps(pkg, pkgdict, repos)):
+                    print dep
+            else:
+                print pkg, "was not packaged for Salix", stable
 
 if __name__ == '__main__':
     main()
