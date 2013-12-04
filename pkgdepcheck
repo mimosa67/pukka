@@ -113,6 +113,8 @@ slash = '/'
 
 #repo index vars
 slxstable, slxcurrent, slkstable, slkcurrent = 0, 1, 2, 3
+
+#arch
 def guessArch(arg):
     """
     If the user input contains the string '64', choose that repo, otherwise i486.
@@ -184,22 +186,16 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
     dictname = filename + '.' +  'pickle'
     clean([pkgtxtz,pkgtxt,dictname]) # remove old pickle too
 
-##### The following functions listPackages and stripRelease are for the --packager option
+##### The following function listPackages is for the --packager option
 
 def listPackages(nick):
     """
     List packages packaged by someone before but not yet this time
     listPackages(nick)
     """
-    #open dictionaries, building first if needed
-    #repoToDict just returns the variable name
-    pkgtxtnameBase = 'salix-' + repo + '_'
-    sdict = repoToDict('salix-', stable)
-    with open(sdict, 'rb') as handle:
-          dbStable = pickle.load(handle)
-    cdict = repoToDict('salix-', current)
-    with open(cdict, 'rb') as handle:
-          dbCurrent = pickle.load(handle)
+    #open dictionaries
+    dbStable = openDict('salix-', stable)
+    dbCurrent = openDict('salix-', current)
     p = []
     for package in dbStable:
         pname = stripRelease(dbStable[package][2])
@@ -209,57 +205,7 @@ def listPackages(nick):
     p = sorted(p)
     for pkg in p:
         print pkg
-
-def stripRelease(pkgrel):
-    """
-    Strip digits from left recursively
-    stripRelease(pjgrel)
-    """
-    if pkgrel == '':
-        return ''
-    if pkgrel[0].isdigit():
-        return stripRelease(pkgrel[1:])
-    else:
-        return pkgrel
-
-##### The following are general helper functions
-
-def clean(files):
-    """
-    Remove any stray file or archive
-    clean(files)
-    """
-    for f in files:
-        if os.path.isfile(f):
-            os.remove(f)
-
-def repoToDict(target, release):
-    """
-    Convert PACKAGES.TXT file to a dictionary
-    repoToDict(target, release), save file, return
-    filename; if present and not updating, just name
-    """
-    pkgtxtname = target + repo + '_' + release
-    dictname = pkgtxtname + '.' + 'pickle'
-    if update:
-        clean(dictname)
-    if not os.path.isfile(dictname):
-        db = Package.parse(Package(), pkgtxtname) 
-        #save db as dictname
-        with open(dictname, 'wb') as handle:
-            pickle.dump(db, handle)
-    return dictname
-
-def elem(item, listobj):
-    """
-    There must be a library function that does this
-    elem(item, listobj)
-    """
-    for i in listobj:
-        if i == item:
-            return True
-    return False
-
+    
 ##### The following functions getSource and getFiles relate to --download option
 
 def getSource(pkg):
@@ -268,11 +214,8 @@ def getSource(pkg):
     from previous Slaix repo; check first.
     getSource(pkg)
     """
+    db = openDict('salix-', release)
     pkgtxtFilename = 'salix-' + repo + '_' + stable
-#    db =  Package.parse(Package(), pkgtxtFilename) #dict
-    sdict = repoToDict('salix-', stable)
-    with open(sdict, 'rb') as handle:
-        db = pickle.load(handle)
     print pkgtxtFilename, ' checking for ', pkg
     if elem(pkg, db):
         #prepare commands
@@ -312,13 +255,11 @@ def parseRepos():
     repos = []
     for target in ['salix-', 'slackware-']:
         for repo in [stable, current]:
-            rdict = repoToDict(target, repo)
-            with open(rdict, 'rb') as handle:
-                db = pickle.load(handle)
-            repos.append(db)
+                db = openDict(target, repo)
+                repos.append(db)
     return repos
 
-def summary(repos):
+def overview(repos):
     """
     Returns a dictionary associating each package name with four
     boolean variables to indicate whether it is present in each repo
@@ -356,7 +297,11 @@ def display(isPresent):
         else:
             print
 
-def listDeps(package, pkgdict, repos):
+def listDeps(package, repos):
+    """
+    List unpackaged dependencies, recursively
+    listDeps(package, repos)
+    """
     deps = []
     depfield = 3
     s = repos[slxstable]
@@ -367,9 +312,67 @@ def listDeps(package, pkgdict, repos):
         if not elem(dep, c) and elem(dep,s):
             deps.append(dep)
             if not elem(dep, S) and not elem('|', dep):
-                for subdep in listDeps(dep, pkgdict, repos):
+                for subdep in listDeps(dep, repos):
                     deps.append(subdep)
     return sorted(list(set(deps))) # turn list to set to remove duplicates
+
+
+##### The following are general helper functions
+
+def stripRelease(pkgrel):
+    """
+    Strip digits from left recursively
+    stripRelease(pjgrel)
+    """
+    if pkgrel == '':
+        return ''
+    if pkgrel[0].isdigit():
+        return stripRelease(pkgrel[1:])
+    else:
+        return pkgrel
+
+def clean(files):
+    """
+    Remove any stray file or archive
+    clean(files)
+    """
+    for f in files:
+        if os.path.isfile(f):
+            os.remove(f)
+
+def repoToDict(target, release):
+    """
+    Convert PACKAGES.TXT file to a dictionary
+    repoToDict(target, release), save file, return
+    filename; if present and not updating, just name
+    """
+    pkgtxtname = target + repo + '_' + release
+    dictname = pkgtxtname + '.' + 'pickle'
+    if update:
+        clean(dictname)
+    if not os.path.isfile(dictname):
+        db = Package.parse(Package(), pkgtxtname) 
+        #save db as dictname
+        with open(dictname, 'wb') as handle:
+            pickle.dump(db, handle)
+    return dictname
+
+def openDict(target, release):
+    pdict = repoToDict(target, release)
+    with open(pdict, 'rb') as handle:
+        return pickle.load(handle)
+
+def elem(item, listobj):
+    """
+    There must be a library function that does this
+    elem(item, listobj)
+    """
+    for i in listobj:
+        if i == item:
+            return True
+    return False
+
+######
 
 def main():
     #download databases if absent or if update requested, rename
@@ -397,11 +400,11 @@ def main():
                 pkgrel = repos[slxstable][pkg][pkgrelfield]
                 print pkg, "was packaged by", stripRelease(pkgrel), "for", stable
         else:
-            pkgdict = summary(repos)
+            pkgdict = overview(repos)
             if not elem(pkg,pkgdict):
                 print "There is no package for", pkg
             elif pkgdict[pkg][slxstable]:
-                deplist = sorted(listDeps(pkg, pkgdict, repos))
+                deplist = sorted(listDeps(pkg, repos))
                 pipe =[]
                 for dep in deplist:
                     print dep
