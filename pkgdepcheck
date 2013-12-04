@@ -12,7 +12,7 @@
 #                                                                             #
 # Copyright Tim Beech <tim~beech~at~gmail~dot~com>.                      #
 #                                                                             #
-# partly based on Frédérick Galusik's code from pkgtxt2db
+# partly based on Frédéric Galusik's code from pkgtxt2db
 
 # This program is free software; you can redistribute it and/or               #
 # modify it under the terms of the GNU General Public License                 #
@@ -59,7 +59,7 @@ parser.add_argument('-e', '--expa', action="store",
 
 parser.add_argument('-p', '--package', action="store",
         dest='package', default='',
-        help = 'The package to search the repos for')
+        help = 'Search for its unmet dependencies')
 
 parser.add_argument('-a', '--arch', action="store",
         dest='arch', default=os.uname()[4],
