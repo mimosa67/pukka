@@ -246,6 +246,9 @@ def elem(item, listobj):
             return True
     return False
 
+def remDuplicates(listobj):
+    gg
+
 ##### The following functions getSource and getFiles relate to --download option
 
 def getSource(pkg):
@@ -308,8 +311,9 @@ def summary(repos):
     pkglist = []
     for db in repos:
         for pkg in db:
-            if not elem(pkg, pkglist):
-                pkglist.append(pkg)
+            pkglist.append(pkg)
+    #remove duplicates
+    pkglist = list(set(pkglist))
 
     #create dictionary from list
     return {pkg:query(pkg, repos) for pkg in pkglist}
@@ -343,11 +347,12 @@ def listDeps(package, pkgdict, repos):
     S = repos[slkstable]
     C = repos[slkcurrent]
     for dep in s[package][depfield].split(","):
-        if not elem(dep, c):
+        if not elem(dep, c) and elem(dep,s):
             deps.append(dep)
             if not elem(dep, S) and not elem('|', dep):
-                deps.append(listDeps(dep, pkgdict, repos))
-    return deps
+                for subdep in listDeps(dep, pkgdict, repos):
+                    deps.append(subdep)
+    return sorted(list(set(deps))) # turn list to set to remove duplicates
 
 def main():
     #download databases if absent or if update requested, rename
