@@ -78,9 +78,7 @@ parser.add_argument('-np', '--nopackage', action="store_true",
 
 parser.add_argument('-nd', '--nodeps', action="store_true",
         default=False,
-        help='Detailed package status info (no dependency checking)'
-
-
+        help='Detailed package status info (no dependency checking)')
 
 parser.add_argument('-s', '--stable', action="store",
         dest='stable', default='14.0',
@@ -96,7 +94,7 @@ parser.add_argument('-m', '--mirror', action="store",
 
 args = parser.parse_args()
 
-# vars
+#vars
 pkgtxtz = 'PACKAGES.TXT.gz'
 pkgtxt = 'PACKAGES.TXT'
 update = args.update
@@ -112,7 +110,7 @@ current = args.current
 mirror = args.mirror
 slash = '/'
 
-# repo index vars
+#repo index vars
 slxstable, slxcurrent, slkstable, slkcurrent = 0, 1, 2, 3
 def guessArch(arg):
     """
@@ -375,15 +373,23 @@ def main():
         if not checkdeps:
             #just check one package
             display(query(pkg, repos))
+            if elem(pkg, repos[slxstable]):
+                pkgrelfield = 4
+                pkgrel = repos[slxstable][pgrelfield]
+                print pkg, "was packaged by", stripRelease(pkgrel), "for", stable
         else:
             pkgdict = summary(repos)
             if not elem(pkg,pkgdict):
                 print "There is no package for", pkg
             elif pkgdict[pkg][slxstable]:
                 deplist = sorted(listDeps(pkg, pkgdict, repos))
+                pipe =[]
                 for dep in deplist:
                     print dep
-                print "Note that alternative dependencies (like jdk|jre) aren't processed further, but you can check them independently."
+                    if elem('|', dep):
+                        pipe.append(dep)
+                if pipe:
+                    print "Note that alternative dependencies (like jdk|jre) aren't processed further, but you can check them independently."
                 if not deplist:
                     print pkg, "appears to have no Salix dependencies."
             else:
