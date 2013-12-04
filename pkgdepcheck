@@ -78,7 +78,7 @@ parser.add_argument('-np', '--nopackage', action="store_true",
 
 parser.add_argument('-nd', '--nodeps', action="store_true",
         default=False,
-        help='Do not check dependencies (just check package)')
+        help='Detailed package status info (no dependency checking)'
 
 
 
@@ -380,8 +380,12 @@ def main():
             if not elem(pkg,pkgdict):
                 print "There is no package for", pkg
             elif pkgdict[pkg][slxstable]:
-                for dep in sorted(listDeps(pkg, pkgdict, repos)):
+                deplist = sorted(listDeps(pkg, pkgdict, repos))
+                for dep in deplist:
                     print dep
+                print "Note that alternative dependencies (like jdk|jre) aren't processed further, but you can check them independently."
+                if not deplist:
+                    print pkg, "appears to have no Salix dependencies."
             else:
                 print pkg, "was not packaged for Salix", stable
 
