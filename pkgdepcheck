@@ -132,6 +132,7 @@ repo = guessArch(arch)
 def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
     """
     Download the slackware/salix PACKAGES.TXT.gz from a built URL and unzip it.
+    Ensure corresponding old dictionary is removed as well.
     pkgtxturl(repo, target, release, |extra|patches)
     """
     # adjust the target
@@ -214,7 +215,7 @@ def getSource(pkg):
     from previous Slaix repo; check first.
     getSource(pkg)
     """
-    db = openDict('salix-', release)
+    db = openDict('salix-', stable)
     pkgtxtFilename = 'salix-' + repo + '_' + stable
     print pkgtxtFilename, ' checking for ', pkg
     if elem(pkg, db):
@@ -235,6 +236,14 @@ def getSource(pkg):
     else:
         print "Package not available in Salix ", stable
 
+def getPkgFiles(pkg):
+    destdir = pkg + '-packagefiles'
+    os.system('mkdir -p ' + destdir)
+    os.chdir(destdir)
+    pkgnamebase = pkg + 7
+    pass
+
+
 def getFiles(pkg, dirsuffix, command, url):
     """
     Actually download files and put in dirs
@@ -245,7 +254,7 @@ def getFiles(pkg, dirsuffix, command, url):
     os.system(command + url)
     os.chdir('..')
 
-##### The remaining functions correspond to the --package option, including dependencies
+##### These functions correspond to the --package option, including dependencies
 
 def overview(repos):
     """
@@ -261,7 +270,7 @@ def overview(repos):
     #remove duplicates
     pkglist = list(set(pkglist))
 
-    #create dictionary from list
+    #create dictionary from list using dictionary comprehension
     return {pkg:query(pkg, repos) for pkg in pkglist}
 
 def query(pkg, repos):
