@@ -237,11 +237,22 @@ def getSource(pkg):
         print "Package not available in Salix ", stable
 
 def getPkgFiles(pkg):
+    version, pkgrel, subdir = 0, 2, 6
     destdir = pkg + '-packagefiles'
+    db = openDict('salix-', stable)
+    urlbase = mirror + repo + slash + stable + db[pkg][subdir] + slash
+    pkgnamebase = string.join([pkg, db[pkg][version], arch, db[pkg][pkgrel]], '-')
+#    pkgnamebase = getpkgname(pkg) + db[pkg][version] + '-' + db[pkg][arch] + db[pkg][pkgrel]
     os.system('mkdir -p ' + destdir)
     os.chdir(destdir)
-    pkgnamebase = pkg + 7
-    pass
+    for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
+        url = urlbase+pkgnamebase+suffix
+        f = urllib2.urlopen(url)
+        print "Fetching ", url
+        print ""
+        # Open local_file for writing
+        with open(os.path.basename(url), "wb") as local_file:
+            local_file.write(f.read())
 
 
 def getFiles(pkg, dirsuffix, command, url):
@@ -310,6 +321,7 @@ def listDeps(package, repos):
     c = repos[slxcurrent]
     S = repos[slkstable]
     C = repos[slkcurrent]
+    print s
     for dep in s[package][depfield].split(","):
         if not elem(dep, c) and elem(dep,s):
             deps.append(dep)
@@ -399,8 +411,10 @@ def main():
                 pkgtxturl(repo, target, release, expa)
 
     #carry out specified actions
-    if download:
+    if download_source:
         getSource(download)
+    if download_package:
+        getPkgFiles(download)
     if packager:
         listPackages(packager)
     if pkg:
