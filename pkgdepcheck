@@ -181,7 +181,8 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
         target = 'salix-'
     filename = target + repo + '_' + release + expa 
     os.rename(pkgtxt, filename)
-    clean([pkgtxtz,pkgtxt])
+    dictname = filename + '.' +  'pickle'
+    clean([pkgtxtz,pkgtxt,dictname]) # remove old pickle too
 
 ##### The following functions listPackages and stripRelease are for the --packager option
 
@@ -372,8 +373,8 @@ def listDeps(package, pkgdict, repos):
 
 def main():
     #download databases if absent or if update requested, rename
-    for target in {'slackware-', 'salix-'}:
-        for release in {stable, current}:
+    for target in ['slackware-', 'salix-']:
+        for release in [stable, current]:
             filename = target + repo + '_' + release 
             if expa != slash:
                 filename = filename + expa
