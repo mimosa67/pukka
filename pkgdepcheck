@@ -36,6 +36,7 @@ import gzip
 import argparse
 import string
 from ParsePkgtxt import Package
+import cPickle as pickle
 
 # Parse the CLI options
 parser = argparse.ArgumentParser(
@@ -124,7 +125,7 @@ def guessArch(arg):
 arch = args.arch
 repo = guessArch(arch)
 
-##### The following functions pkgtxturl and clean download PACKAGES.TXT
+##### The following function pkgtxturl downloads PACKAGES.TXT
 
 def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
     """
@@ -148,7 +149,7 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
     url = mirror + repo + slash + target + release + expa + pkgtxtz
 
     # remove old files
-    clean()
+    clean([pkgtxtz, pkgtxt])
 
     # fetch
     try:
@@ -180,17 +181,7 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
         target = 'salix-'
     filename = target + repo + '_' + release + expa 
     os.rename(pkgtxt, filename)
-    clean()
-
-def clean():
-    """
-    Remove any stray PACKAGES.TXT file or archive
-    clean()
-    """
-    if os.path.isfile(pkgtxtz):
-        os.remove(pkgtxtz)
-    if os.path.isfile(pkgtxt):
-        os.remove(pkgtxt)
+    clean([pkgtxtz,pkgtxt])
 
 ##### The following functions listPackages and stripRelease are for the --packager option
 
@@ -199,9 +190,15 @@ def listPackages(nick):
     List packages packaged by someone before but not yet this time
     listPackages(nick)
     """
+    #open dictionaries, building first if needed
+    #repoToDict just returns the variable name
     pkgtxtnameBase = 'salix-' + repo + '_'
-    dbStable = repoToDict('salix-', stable)
-    dbCurrent = repoToDict('salix-', current)
+    sdict = repoToDict('salix-', stable)
+    with open(sdict, 'rb') as handle:
+          dbStable = pickle.load(handle)
+    cdict = repoToDict('salix-', current)
+    with open(cdict, 'rb') as handle:
+          dbCurrent = pickle.load(handle)
     p = []
     for package in dbStable:
         pname = stripRelease(dbStable[package][2])
@@ -226,13 +223,31 @@ def stripRelease(pkgrel):
 
 ##### The following are general helper functions
 
+def clean(files):
+    """
+    Remove any stray file or archive
+    clean(files)
+    """
+    for f in files:
+        if os.path.isfile(f):
+            os.remove(f)
+
 def repoToDict(target, release):
     """
     Convert PACKAGES.TXT file to a dictionary
-    repoToDict(target, release)
+    repoToDict(target, release), save file, return
+    filename; if present and not updating, just name
     """
     pkgtxtname = target + repo + '_' + release
-    return Package.parse(Package(), pkgtxtname)
+    dictname = pkgtxtname + '.' + 'pickle'
+    if update:
+        clean(dictname)
+    if not os.path.isfile(dictname):
+        db = Package.parse(Package(), pkgtxtname) 
+        #save db as dictname
+        with open(dictname, 'wb') as handle:
+            pickle.dump(db, handle)
+    return dictname
 
 def elem(item, listobj):
     """
@@ -244,9 +259,6 @@ def elem(item, listobj):
             return True
     return False
 
-def remDuplicates(listobj):
-    gg
-
 ##### The following functions getSource and getFiles relate to --download option
 
 def getSource(pkg):
@@ -256,7 +268,10 @@ def getSource(pkg):
     getSource(pkg)
     """
     pkgtxtFilename = 'salix-' + repo + '_' + stable
-    db =  Package.parse(Package(), pkgtxtFilename)
+#    db =  Package.parse(Package(), pkgtxtFilename) #dict
+    sdict = repoToDict('salix-', stable)
+    with open(sdict, 'rb') as handle:
+        db = pickle.load(handle)
     print pkgtxtFilename, ' checking for ', pkg
     if elem(pkg, db):
         #prepare commands
@@ -296,7 +311,10 @@ def parseRepos():
     repos = []
     for target in ['salix-', 'slackware-']:
         for repo in [stable, current]:
-            repos.append(repoToDict(target, repo))
+            rdict = repoToDict(target, repo)
+            with open(rdict, 'rb') as handle:
+                db = pickle.load(handle)
+            repos.append(db)
     return repos
 
 def summary(repos):
