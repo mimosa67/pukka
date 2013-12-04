@@ -267,8 +267,8 @@ def overview(repos):
     """
     #create list of packages from all repos
     pkglist = []
-    for db in repos:
-        for pkg in db:
+    for repo in repos:
+        for pkg in repo:
             pkglist.append(pkg)
     #remove duplicates
     pkglist = list(set(pkglist))
@@ -277,6 +277,11 @@ def overview(repos):
     return {pkg:query(pkg, repos) for pkg in pkglist}
 
 def query(pkg, repos):
+    """
+    Returns a list of boolean values for presence of single package
+    per repo
+    query(pkg, repos)
+    """
     profile = []
     for repo in repos: 
         profile.append(elem (pkg, repo))
