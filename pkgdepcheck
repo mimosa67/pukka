@@ -247,18 +247,6 @@ def getFiles(pkg, dirsuffix, command, url):
 
 ##### The remaining functions correspond to the --package option, including dependencies
 
-def parseRepos():
-    """
-    Convert each repo to dict, return list of all four
-    parseRepos()
-    """
-    repos = []
-    for target in ['salix-', 'slackware-']:
-        for repo in [stable, current]:
-                db = openDict(target, repo)
-                repos.append(db)
-    return repos
-
 def overview(repos):
     """
     Returns a dictionary associating each package name with four
@@ -362,6 +350,18 @@ def repoToDict(target, release):
             pickle.dump(db, handle)
     return dictname
 
+def parseRepos():
+    """
+    Convert each repo to dict, return list of all four
+    parseRepos()
+    """
+    repos = []
+    for target in ['salix-', 'slackware-']:
+        for repo in [stable, current]:
+                db = openDict(target, repo)
+                repos.append(db)
+    return repos
+
 def openDict(target, release):
     pdict = repoToDict(target, release)
     with open(pdict, 'rb') as handle:
@@ -377,7 +377,7 @@ def elem(item, listobj):
             return True
     return False
 
-######
+###### main ...
 
 def main():
     #download databases if absent or if update requested, rename
