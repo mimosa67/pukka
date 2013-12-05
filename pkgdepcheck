@@ -240,15 +240,16 @@ def getSource(pkg):
         print "Package not available in Salix ", stable
 
 def getPkgFiles(pkg):
-    version, pkgrel, subdir = 0, 2, 6
+    version, parch, pkgrel, subdir = 0, 1, 2, 6
     destdir = pkg + '-packagefiles'
     db = openDict('salix-', stable)
     urlbase = mirror + repo + slash + stable + db[pkg][subdir] + slash
-    pkgnamebase = string.join([pkg, db[pkg][version], repo, db[pkg][pkgrel]], '-')
+    pkgnamebase = string.join([pkg, db[pkg][version], db[pkg][parch], db[pkg][pkgrel]], '-')
     os.system('mkdir -p ' + destdir)
     os.chdir(destdir)
     for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
         url = urlbase+pkgnamebase+suffix
+        print url
         downloadURL(url)
     os.chdir('..')
 
