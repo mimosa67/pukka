@@ -59,7 +59,7 @@ parser.add_argument('-e', '--expa', action="store",
 
 parser.add_argument('-p', '--package', action="store",
         dest='package', default='',
-        help = 'Search for its unmet dependencies')
+        help = 'Detailed package status info')
 
 parser.add_argument('-a', '--arch', action="store",
         dest='arch', default=os.uname()[4],
@@ -77,9 +77,9 @@ parser.add_argument('-np', '--nopackage', action="store_true",
         default=False,
         help='Do not download package files (just get source)')
 
-parser.add_argument('-nd', '--nodeps', action="store_true",
+parser.add_argument('-dep', '--depcheck', action="store_true",
         default=False,
-        help='Detailed package status info (no dependency checking)')
+        help='Check unmet package dependencies')
 
 parser.add_argument('-s', '--stable', action="store",
         dest='stable', default='14.0',
@@ -105,7 +105,7 @@ expa = args.expa
 download = args.download
 download_source = not args.nosource
 download_package = not args.nopackage
-checkdeps= not args.nodeps
+depcheck= args.depcheck
 stable = args.stable
 current = args.current
 mirror = args.mirror
@@ -413,7 +413,7 @@ def main():
     if pkg:
         #make dictionaries
         repos = parseRepos()
-        if not checkdeps:
+        if not depcheck:
             #just check one package
             display(query(pkg, repos))
             if elem(pkg, repos[slxstable]):
