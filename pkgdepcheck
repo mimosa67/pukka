@@ -223,15 +223,15 @@ def getSource(pkg):
         subdir = db[pkg][6] + slash
         urlbase = mirror + repo + slash + stable
         wgetSourceCommand = 'wget  -nv -nd -crl 1 -R "index*" '
-        wgetPackageCommand = 'wget -nv -nd -crl 1  -R "index*" -A ' + '"' + pkg + '*" '
+#        wgetPackageCommand = 'wget -nv -nd -crl 1  -R "index*" -A ' + '"' + pkg + '*" '
         sourceURL = urlbase + '/source' + subdir[6:] + pkg + slash
-        packageURL = urlbase + subdir
+#        packageURL = urlbase + subdir
         #download package source files to a directory
         if download_source:
             getFiles(pkg, '-sourcefiles', wgetSourceCommand, sourceURL)
         #download package files to another directory
-        if download_package:
-            getFiles(pkg, '-packagefiles', wgetPackageCommand, packageURL)
+#        if download_package:
+#            getFiles(pkg, '-packagefiles', wgetPackageCommand, packageURL)
 
     else:
         print "Package not available in Salix ", stable
