@@ -189,6 +189,26 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
 
 ##### The following function listPackages is for the --packager option
 
+def listPackages(nick):
+    """
+     List packages packaged by someone before but not yet this time
+    listPackages(nick)
+    """
+    #open dictionaries
+    dbStable = openDict('salix-', stable)
+    dbCurrent = openDict('salix-', current)
+    p = []
+    for package in dbStable:
+        pname = stripNum(dbStable[package][2])
+        if pname == nick: # this is one he did
+            if not elem(package,dbCurrent):
+                p.append(package)
+    p = sorted(p)
+    for pkg in p:
+        print pkg
+    
+##### The following functions getSource, getPkgFiles and getFiles relate to --download option
+
 def getSource(pkg):
     """
     Download source and package files for a given package
@@ -326,15 +346,15 @@ def listDeps(package, repos):
 
 ##### The following are general helper functions
 
-def stripRelease(pkgrel):
+def stripNum(pkgrel):
     """
     Strip digits from left recursively
-    stripRelease(pjgrel)
+    stripNum(pjgrel)
     """
     if pkgrel == '':
         return ''
     if pkgrel[0].isdigit():
-        return stripRelease(pkgrel[1:])
+        return stripNum(pkgrel[1:])
     else:
         return pkgrel
 
@@ -410,17 +430,15 @@ def main():
         getPkgFiles(download)
     if packager:
         listPackages(packager)
-    if pkg:
-        #make dictionaries
+    if pkg: #first make dictionaries
         repos = parseRepos()
-        if not depcheck:
-            #just check one package
-            display(query(pkg, repos))
+        if not depcheck: #just check one package
+            display(query(pkg, repos)) #show detail
             if elem(pkg, repos[slxstable]):
                 pkgrelfield = 2
                 pkgrel = repos[slxstable][pkg][pkgrelfield]
-                print pkg, "was packaged by", stripRelease(pkgrel), "for", stable
-        else:
+                print pkg, "was packaged by", stripNum(pkgrel), "for", stable
+        else: #check for unmet dependencies
             pkgdict = overview(repos)
             if not elem(pkg,pkgdict):
                 print "There is no package for", pkg
