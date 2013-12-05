@@ -189,26 +189,6 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
 
 ##### The following function listPackages is for the --packager option
 
-def listPackages(nick):
-    """
-    List packages packaged by someone before but not yet this time
-    listPackages(nick)
-    """
-    #open dictionaries
-    dbStable = openDict('salix-', stable)
-    dbCurrent = openDict('salix-', current)
-    p = []
-    for package in dbStable:
-        pname = stripRelease(dbStable[package][2])
-        if pname == nick: # this is one he did
-            if not elem(package,dbCurrent):
-                p.append(package)
-    p = sorted(p)
-    for pkg in p:
-        print pkg
-    
-##### The following functions getSource and getFiles relate to --download option
-
 def getSource(pkg):
     """
     Download source and package files for a given package
@@ -219,20 +199,23 @@ def getSource(pkg):
     pkgtxtFilename = 'salix-' + repo + '_' + stable
     print pkgtxtFilename, ' checking for ', pkg
     if elem(pkg, db):
+        ##prepare directory
+        ##destdir = pkg + '-sourcefiles'
+        ##os.system('mkdir -p ' + destdir)
+        ##os.chdir(destdir)
         #prepare commands
         subdir = db[pkg][6] + slash
         urlbase = mirror + repo + slash + stable
-        wgetSourceCommand = 'wget  -nv -nd -crl 1 -R "index*" '
-#        wgetPackageCommand = 'wget -nv -nd -crl 1  -R "index*" -A ' + '"' + pkg + '*" '
-        sourceURL = urlbase + '/source' + subdir[6:] + pkg + slash
-#        packageURL = urlbase + subdir
-        #download package source files to a directory
-        if download_source:
-            getFiles(pkg, '-sourcefiles', wgetSourceCommand, sourceURL)
-        #download package files to another directory
-#        if download_package:
-#            getFiles(pkg, '-packagefiles', wgetPackageCommand, packageURL)
-
+        url = urlbase + '/source' + subdir[6:] + pkg + slash
+        wgetcommand = 'wget  -nv -nd -crl 1 -R "index*" '
+        #download source files
+        getFiles(pkg, '-sourcefiles', wgetcommand, url)
+        ##download SLKBUILD
+        ##downloadURL(url + 'index.html')
+        ##files = parseSourceLine('index.html')
+        ##for file in files:
+        ##    downloadURL(url + file)
+        ##os.chdir('..')
     else:
         print "Package not available in Salix ", stable
 
@@ -246,13 +229,8 @@ def getPkgFiles(pkg):
     os.chdir(destdir)
     for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
         url = urlbase+pkgnamebase+suffix
-        print url
-        f = urllib2.urlopen(url)
-        print "Fetching ", url
-        print ""
-        # Open local_file for writing
-        with open(os.path.basename(url), "wb") as local_file:
-            local_file.write(f.read())
+        downloadURL(url)
+    os.chdir('..')
 
 
 def getFiles(pkg, dirsuffix, command, url):
@@ -264,6 +242,22 @@ def getFiles(pkg, dirsuffix, command, url):
     os.chdir(destdir)
     os.system(command + url)
     os.chdir('..')
+#### These two functions are WIP to replace wget
+
+def downloadURL(url):
+    f = urllib2.urlopen(url)
+    print "Fetching ", url
+    print ""
+    # Open local file for writing
+    with open(os.path.basename(url), "wb") as local_file:
+        local_file.write(f.read())
+
+def parseSourceLine(file):
+    slkbuild = open(file, 'r')
+    for line in slkbuild:
+        print string.split(line)
+    return(["SLKBUILD"])
+
 
 ##### These functions correspond to the --package option, including dependencies
 
