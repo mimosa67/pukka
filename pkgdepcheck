@@ -111,6 +111,15 @@ current = args.current
 mirror = args.mirror
 slash = '/'
 
+#dirs
+#wd = os.getcwd() + slash # we were called from here
+configdir = os.path.expanduser('~/.config/pkgdepcheck/')
+os.system('mkdir -p ' + configdir)
+for dir in (".", "/usr/libexec/pkgdepcheck"):
+    if os.path.exists(os.path.join(dir, "src.sh")):
+        srcparse = os.path.join(dir, "src.sh")
+
+
 #repo index vars
 slxstable, slxcurrent, slkstable, slkcurrent = 0, 1, 2, 3
 
@@ -147,12 +156,11 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
     elif expa == 'patches':
         expa = '/patches/'
 
-
     # Build the URL to fetch PACKAGES.TXT
     url = mirror + repo + slash + target + release + expa + pkgtxtz
 
     # remove old files
-    clean([pkgtxtz, pkgtxt])
+    clean([pkgtxtz, pkgtxt], configdir)
 
     # fetch
     try:
@@ -160,7 +168,7 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
         print "Fetching ", url
         print ""
         # Open local_file for writing
-        with open(os.path.basename(url), "wb") as local_file:
+        with open(configdir + os.path.basename(url), "wb") as local_file:
             local_file.write(f.read())
     except urllib2.HTTPError, e:
         print "HTTP Error:", e.code, url
@@ -170,8 +178,8 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
         return False
 
     # unzip it
-    fout = open(pkgtxt, 'w')
-    with gzip.open(pkgtxtz, 'rb') as f:
+    fout = open(configdir + pkgtxt, 'w')
+    with gzip.open(configdir + pkgtxtz, 'rb') as f:
         for line in f:
             fout.write(line)
     fout.close()
@@ -183,9 +191,9 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
     if target == '':
         target = 'salix-'
     filename = target + repo + '_' + release + expa 
-    os.rename(pkgtxt, filename)
+    os.rename(configdir + pkgtxt, configdir + filename)
     dictname = filename + '.' +  'pickle'
-    clean([pkgtxtz,pkgtxt,dictname]) # remove old pickle too
+    clean([pkgtxtz,pkgtxt,dictname], configdir) # remove old pickle too
 
 ##### The following function listPackages is for the --packager option
 
@@ -219,23 +227,17 @@ def getSource(pkg):
     pkgtxtFilename = 'salix-' + repo + '_' + stable
     print pkgtxtFilename, ' checking for ', pkg
     if elem(pkg, db):
-        ##prepare directory
-        ##destdir = pkg + '-sourcefiles'
-        ##os.system('mkdir -p ' + destdir)
-        ##os.chdir(destdir)
-        #prepare commands
         subdir = db[pkg][6] + slash
-        urlbase = mirror + repo + slash + stable
-        url = urlbase + '/source' + subdir[6:] + pkg + slash
-        wgetcommand = 'wget  -nv -nd -crl 1 -R "index*" '
-        #download source files
-        getFiles(pkg, '-sourcefiles', wgetcommand, url)
-        ##download SLKBUILD
-        ##downloadURL(url + 'index.html')
-        ##files = parseSourceLine('index.html')
-        ##for file in files:
-        ##    downloadURL(url + file)
-        ##os.chdir('..')
+        urlbase = mirror + repo + slash + stable + '/source' + subdir[6:] + pkg + slash
+        downloadURL(urlbase + 'SLKBUILD')
+        os.system(srcparse + ' > ' + configdir + 'sourcelist')
+        f = open(configdir + "sourcelist", "r")
+        sources = f.read()
+        f.close()
+        clean(['sourcelist'], configdir) 
+        for filename in sources.split():
+            print 'Downloading', urlbase + filename
+            downloadURL(urlbase + filename)
     else:
         print "Package not available in Salix ", stable
 
@@ -245,25 +247,10 @@ def getPkgFiles(pkg):
     db = openDict('salix-', stable)
     urlbase = mirror + repo + slash + stable + db[pkg][subdir] + slash
     pkgnamebase = string.join([pkg, db[pkg][version], db[pkg][parch], db[pkg][pkgrel]], '-')
-    os.system('mkdir -p ' + destdir)
-    os.chdir(destdir)
     for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
         url = urlbase+pkgnamebase+suffix
-        print url
         downloadURL(url)
-    os.chdir('..')
 
-
-def getFiles(pkg, dirsuffix, command, url):
-    """
-    Actually download files and put in dirs
-    """
-    destdir = pkg + dirsuffix
-    os.system('mkdir -p ' + destdir)
-    os.chdir(destdir)
-    os.system(command + url)
-    os.chdir('..')
-#### These two functions are WIP to replace wget
 
 def downloadURL(url):
     f = urllib2.urlopen(url)
@@ -272,12 +259,6 @@ def downloadURL(url):
     # Open local file for writing
     with open(os.path.basename(url), "wb") as local_file:
         local_file.write(f.read())
-
-def parseSourceLine(file):
-    slkbuild = open(file, 'r')
-    for line in slkbuild:
-        print string.split(line)
-    return(["SLKBUILD"])
 
 
 ##### These functions correspond to the --package option, including dependencies
@@ -359,14 +340,14 @@ def stripNum(pkgrel):
     else:
         return pkgrel
 
-def clean(files):
+def clean(files, directory):
     """
     Remove any stray file or archive
-    clean(files)
+    clean(files, directory)
     """
     for f in files:
-        if os.path.isfile(f):
-            os.remove(f)
+        if os.path.isfile(directory + f):
+            os.remove(directory + f)
 
 def repoToDict(target, release):
     """
@@ -377,11 +358,11 @@ def repoToDict(target, release):
     pkgtxtname = target + repo + '_' + release
     dictname = pkgtxtname + '.' + 'pickle'
     if update:
-        clean(dictname)
-    if not os.path.isfile(dictname):
-        db = Package.parse(Package(), pkgtxtname) 
+        clean(dictname, configdir)
+    if not os.path.isfile(configdir + dictname):
+        db = Package.parse(Package(), configdir + pkgtxtname) 
         #save db as dictname
-        with open(dictname, 'wb') as handle:
+        with open(configdir + dictname, 'wb') as handle:
             pickle.dump(db, handle)
     return dictname
 
@@ -399,7 +380,7 @@ def parseRepos():
 
 def openDict(target, release):
     pdict = repoToDict(target, release)
-    with open(pdict, 'rb') as handle:
+    with open(configdir + pdict, 'rb') as handle:
         return pickle.load(handle)
 
 def elem(item, listobj):
@@ -421,7 +402,7 @@ def main():
             filename = target + repo + '_' + release 
             if expa != slash:
                 filename = filename + expa
-            if update or not os.path.isfile(filename):    
+            if update or not os.path.isfile(configdir + filename):    
                 pkgtxturl(repo, target, release, expa)
 
     #carry out specified actions

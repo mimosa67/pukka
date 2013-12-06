@@ -6,10 +6,9 @@
 
 unset source
 . SLKBUILD
-srclist="["
+srclist=""
 for src in "${source[@]}"; do
-    src=`basename "$src"`
-    srclist=${srclist}"'"${src}"', " # strip any paths and separate with commas
+    src=`basename "$src"`       # strip any paths
+    srclist=${srclist}${src}" " # separate with spaces
 done
-srclist=${srclist%, }"]" # remove trailing comma and close bracket
 echo $srclist
