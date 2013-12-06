@@ -115,9 +115,9 @@ slash = '/'
 #wd = os.getcwd() + slash # we were called from here
 configdir = os.path.expanduser('~/.config/pkgdepcheck/')
 os.system('mkdir -p ' + configdir)
-for dir in (".", "/usr/libexec/pkgdepcheck"):
-    if os.path.exists(os.path.join(dir, "src.sh")):
-        srcparse = os.path.join(dir, "src.sh")
+for hdir in (".", "/usr/libexec/pkgdepcheck"):
+    if os.path.exists(os.path.join(hdir, "src.sh")):
+        srcparse = os.path.join(hdir, "src.sh")
 
 
 #repo index vars
@@ -236,7 +236,6 @@ def getSource(pkg):
         f.close()
         clean(['sourcelist'], configdir) 
         for filename in sources.split():
-            print 'Downloading', urlbase + filename
             downloadURL(urlbase + filename)
     else:
         print "Package not available in Salix ", stable
