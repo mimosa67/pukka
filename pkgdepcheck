@@ -77,7 +77,7 @@ parser.add_argument('-np', '--nopackage', action="store_true",
         default=False,
         help='Do not download package files (just get source)')
 
-parser.add_argument('-dep', '--depcheck', action="store_true",
+parser.add_argument('-D', '--depcheck', action="store_true",
         default=False,
         help='Check unmet package dependencies')
 
