@@ -77,8 +77,8 @@ parser.add_argument('-np', '--nopackage', action="store_true",
         default=False,
         help='Do not download package files (just get source)')
 
-parser.add_argument('-D', '--depcheck', action="store_true",
-        default=False,
+parser.add_argument('-D', '--depcheck', action="store",
+        dest='depcheck', default='',
         help='Check unmet package dependencies')
 
 parser.add_argument('-s', '--stable', action="store",
@@ -106,6 +106,8 @@ download = args.download
 download_source = not args.nosource
 download_package = not args.nopackage
 depcheck= args.depcheck
+if depcheck:
+    pkg = depcheck
 stable = args.stable
 current = args.current
 mirror = args.mirror
