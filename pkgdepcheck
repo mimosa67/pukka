@@ -78,7 +78,7 @@ parser.add_argument('-np', '--nopackage', action="store_true",
         help='Do not download package files (just get source)')
 
 parser.add_argument('-D', '--depcheck', action="store",
-        dest='depcheck', default='',
+        dest='Package', default='',
         help='Check unmet package dependencies')
 
 parser.add_argument('-s', '--stable', action="store",
@@ -105,7 +105,7 @@ expa = args.expa
 download = args.download
 download_source = not args.nosource
 download_package = not args.nopackage
-depcheck= args.depcheck
+depcheck= args.Package
 if depcheck:
     pkg = depcheck
 stable = args.stable
