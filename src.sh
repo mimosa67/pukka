@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #src.sh
 #parse source line in SLKBUILD
