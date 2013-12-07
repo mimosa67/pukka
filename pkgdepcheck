@@ -112,10 +112,10 @@ mirror = args.mirror
 slash = '/'
 
 #dirs
-#wd = os.getcwd() + slash # we were called from here
+wd = os.getcwd() + slash # we were called from here
 configdir = os.path.expanduser('~/.config/pkgdepcheck/')
 os.system('mkdir -p ' + configdir)
-for hdir in (".", "/usr/libexec/pkgdepcheck"):
+for hdir in (".", configdir, "/usr/libexec/pkgdepcheck"):
     if os.path.exists(os.path.join(hdir, "src.sh")):
         srcparse = os.path.join(hdir, "src.sh")
 
@@ -163,19 +163,7 @@ def pkgtxturl(repo='i486', target='salix', release='14.0', expa='/'):
     clean([pkgtxtz, pkgtxt], configdir)
 
     # fetch
-    try:
-        f = urllib2.urlopen(url)
-        print "Fetching ", url
-        print ""
-        # Open local_file for writing
-        with open(configdir + os.path.basename(url), "wb") as local_file:
-            local_file.write(f.read())
-    except urllib2.HTTPError, e:
-        print "HTTP Error:", e.code, url
-        return False
-    except urllib2.URLError, e:
-        print "URL Error:", e.reason, url
-        return False
+    downloadURL(configdir, url)
 
     # unzip it
     fout = open(configdir + pkgtxt, 'w')
@@ -215,7 +203,7 @@ def listPackages(nick):
     for pkg in p:
         print pkg
     
-##### The following functions getSource, getPkgFiles and getFiles relate to --download option
+##### The following functions getSource and getPkgFiles relate to --download option
 
 def getSource(pkg):
     """
@@ -229,14 +217,14 @@ def getSource(pkg):
     if elem(pkg, db):
         subdir = db[pkg][6] + slash
         urlbase = mirror + repo + slash + stable + '/source' + subdir[6:] + pkg + slash
-        downloadURL(urlbase + 'SLKBUILD')
+        downloadURL(wd, urlbase + 'SLKBUILD')
         os.system(srcparse + ' > ' + configdir + 'sourcelist')
         f = open(configdir + "sourcelist", "r")
         sources = f.read()
         f.close()
         clean(['sourcelist'], configdir) 
         for filename in sources.split():
-            downloadURL(urlbase + filename)
+            downloadURL(wd, urlbase + filename)
     else:
         print "Package not available in Salix ", stable
 
@@ -248,16 +236,7 @@ def getPkgFiles(pkg):
     pkgnamebase = string.join([pkg, db[pkg][version], db[pkg][parch], db[pkg][pkgrel]], '-')
     for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
         url = urlbase+pkgnamebase+suffix
-        downloadURL(url)
-
-
-def downloadURL(url):
-    f = urllib2.urlopen(url)
-    print "Fetching ", url
-    print ""
-    # Open local file for writing
-    with open(os.path.basename(url), "wb") as local_file:
-        local_file.write(f.read())
+        downloadURL(wd, url)
 
 
 ##### These functions correspond to the --package option, including dependencies
@@ -338,6 +317,25 @@ def stripNum(pkgrel):
         return stripNum(pkgrel[1:])
     else:
         return pkgrel
+
+def downloadURL(location, url):
+    """
+    Download file from url and place it at local location
+    downloadURL(location, URL)
+    """
+    try:
+        f = urllib2.urlopen(url)
+        print "Fetching ", url
+        print ""
+        # Open local file for writing
+        with open(location + os.path.basename(url), "wb") as local_file:
+            local_file.write(f.read())
+    except urllib2.HTTPError, e:
+        print "HTTP Error:", e.code, url
+        return False
+    except urllib2.URLError, e:
+        print "URL Error:", e.reason, url
+        return False
 
 def clean(files, directory):
     """
