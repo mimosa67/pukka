@@ -241,7 +241,7 @@ def getPkgFiles(pkg):
         downloadURL(wd, url)
 
 
-##### These functions correspond to the --package option, including dependencies
+##### These functions correspond to the --package and --depcheck options
 
 def overview(repos):
     """
@@ -271,16 +271,24 @@ def query(pkg, repos):
         profile.append(elem (pkg, repo))
     return profile
 
-def display(isPresent):
+def display(isPresent, repos):
     """
     Output messages about package status per repo
+    Print version
     """
+    versionfield = 0
+    if isPresent[slxstable]:
+        stableversion = repos[slxstable][pkg][versionfield]
+
     if isPresent[slxcurrent]:
-        print pkg, "has already been packaged for ", current
+        currentversion = repos[slxstable][pkg][versionfield]
+        print pkg + '-' + currentversion, "has already been packaged for ", current
+        if stableversion:
+            print "The previous version was", stableversion
     elif not isPresent[slxstable]:
         print pkg, "was not packaged for ", stable
     else:
-        print pkg, "has not been packaged yet.",
+        print pkg, "has not been packaged yet. The previous version was", stableversion
         if isPresent[slkcurrent]:
             print "However, there is a Slackware package for it."
         else:
@@ -414,7 +422,7 @@ def main():
     if pkg: #first make dictionaries
         repos = parseRepos()
         if not depcheck: #just check one package
-            display(query(pkg, repos)) #show detail
+            display(query(pkg, repos), repos) #show detail
             if elem(pkg, repos[slxstable]):
                 pkgrelfield = 2
                 pkgrel = repos[slxstable][pkg][pkgrelfield]
