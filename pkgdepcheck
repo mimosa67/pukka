@@ -79,7 +79,7 @@ parser.add_argument('-np', '--nopackage', action="store_true",
 
 parser.add_argument('-D', '--depcheck', action="store",
         dest='Package', default='',
-        help='Check unmet package dependencies')
+        help='Check unpackaged package dependencies')
 
 parser.add_argument('-s', '--stable', action="store",
         dest='stable', default='14.0',
@@ -427,7 +427,7 @@ def main():
                 pkgrelfield = 2
                 pkgrel = repos[slxstable][pkg][pkgrelfield]
                 print pkg, "was packaged by", stripNum(pkgrel), "for", stable
-        else: #check for unmet dependencies
+        else: #check for unpackaged dependencies
             pkgdict = overview(repos)
             if not elem(pkg,pkgdict):
                 print "There is no package for", pkg
@@ -441,7 +441,7 @@ def main():
                 if pipe:
                     print "Note that alternative dependencies (like jdk|jre) aren't processed further, but you can check them independently."
                 if not deplist:
-                    print pkg, "appears to have no unmet Salix dependencies."
+                    print pkg, "appears to have no unpackaged Salix dependencies."
             else:
                 print pkg, "was not packaged for Salix", stable
 
