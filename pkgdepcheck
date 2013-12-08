@@ -295,7 +295,7 @@ def display(isPresent, repos):
             else:
                 print "There does not appear to be a package for it in Slackware", current
         elif isPresent[slkcurrent]:
-                print "Although it was not packaged for Slackware", stable, "either, there is a package for Slackware," current
+                print "Although it was not packaged for Slackware", stable, "either, there is a package for Slackware", current
     else:
         print pkg, "has not been packaged yet. The previous version was", stableversion
         if isPresent[slkcurrent]:
