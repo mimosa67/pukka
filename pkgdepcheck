@@ -274,6 +274,7 @@ def query(pkg, repos):
 def display(isPresent, repos):
     """
     Output messages about package status per repo
+    I think all bases are covered - 2 ^ 3 = 8 options if not already in current
     Print version
     """
     versionfield = 0
@@ -293,6 +294,8 @@ def display(isPresent, repos):
                 print "It has also been packaged for Slackware", current
             else:
                 print "There does not appear to be a package for it in Slackware", current
+        elif isPresent[slkcurrent]:
+                print "Although it was not packaged for Slackware", stable, "either, there is a package for Slackware," current
     else:
         print pkg, "has not been packaged yet. The previous version was", stableversion
         if isPresent[slkcurrent]:
