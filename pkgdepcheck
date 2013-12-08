@@ -282,11 +282,13 @@ def display(isPresent, repos):
         stableversion = repos[slxstable][pkg][versionfield]
 
     if isPresent[slxcurrent]:
+        # it has been packaged for Salix current
         currentversion = repos[slxstable][pkg][versionfield]
         print pkg + '-' + currentversion, "has already been packaged for ", current
         if stableversion:
             print "The previous version was", stableversion
     elif not isPresent[slxstable]:
+        # no Salix package this time or last, tell about Slack
         print pkg, "was not packaged for Salix", stable
         if isPresent[slkstable]:
             print "However, there was a package for it in Slackware", stable
@@ -296,10 +298,15 @@ def display(isPresent, repos):
                 print "There does not appear to be a package for it in Slackware", current
         elif isPresent[slkcurrent]:
                 print "Although it was not packaged for Slackware", stable, "either, there is a package for Slackware", current
+        else:
+            print "There is no record of any such package."
     else:
-        print pkg, "has not been packaged yet. The previous version was", stableversion
+        # it was packaged for Salix last time, tell about Slack
+        print pkg, "has not been packaged yet. The previous version was:", pkg + '-' + stableversion
         if isPresent[slkcurrent]:
             print "However, there is a Slackware package for it."
+            if not isPresent[slkstable]:
+                print "There was no Slackware package for", stable
         elif isPresent[slkstable]:
             print "It was packaged for Slackware", stable, "but has not yet been packaged for", current
             print
