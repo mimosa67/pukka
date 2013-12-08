@@ -286,7 +286,7 @@ def display(isPresent, repos):
         if stableversion:
             print "The previous version was", stableversion
     elif not isPresent[slxstable]:
-        print pkg, "was not packaged for ", stable
+        print pkg, "was not packaged for Salix", stable
         if isPresent[slkstable]:
             print "However, there was a package for it in Slackware", stable
             if isPresent[slkcurrent]:
@@ -433,7 +433,7 @@ def main():
             if elem(pkg, repos[slxstable]):
                 pkgrelfield = 2
                 pkgrel = repos[slxstable][pkg][pkgrelfield]
-                print pkg, "was packaged by", stripNum(pkgrel), "for", stable
+                print pkg, "was packaged by", stripNum(pkgrel), "for Salix", stable
         else: #check for unpackaged dependencies
             pkgdict = overview(repos)
             if not elem(pkg,pkgdict):
