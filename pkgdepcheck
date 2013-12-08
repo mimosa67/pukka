@@ -287,11 +287,18 @@ def display(isPresent, repos):
             print "The previous version was", stableversion
     elif not isPresent[slxstable]:
         print pkg, "was not packaged for ", stable
+        if isPresent[slkstable]:
+            print "However, there was a package for it in Slackware", stable
+            if isPresent[slkcurrent]:
+                print "It has also been packaged for Slackware", current
+            else:
+                print "There does not appear to be a package for it in Slackware", current
     else:
         print pkg, "has not been packaged yet. The previous version was", stableversion
         if isPresent[slkcurrent]:
             print "However, there is a Slackware package for it."
-        else:
+        elif isPresent[slkstable]:
+            print "It was packaged for Slackware", stable, "but has not yet been packaged for", current
             print
 
 def listDeps(package, repos):
