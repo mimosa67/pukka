@@ -121,7 +121,6 @@ for hdir in (".", configdir, "/usr/libexec/pkgdepcheck"):
     if os.path.exists(os.path.join(hdir, "src.sh")):
         srcparse = os.path.join(hdir, "src.sh")
 
-
 #repo index vars
 slxstable, slxcurrent, slkstable, slkcurrent = 0, 1, 2, 3
 
