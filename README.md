@@ -3,7 +3,7 @@ pkgdepcheck
 
 Compare two Salix / Slackware repos and deduce information about missing packages; download package files
 
-This script uses code by Frédéric Galusik, from his pkgtxt2db, gratefully acknowledged.
+This script uses code by Frédéric Galusik, from his pkgtxt2db, gratefully acknowledged. It also depends on his python-parsepkgtxt, available from Salix repos or via pip.
 
 pkgdepcheck -h gives a rundown of the options, but the main ones are:
 

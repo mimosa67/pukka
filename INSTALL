@@ -1,2 +1,4 @@
 Run install.sh as root
 
+Note that pkgdepcheck depends on python-parsepkgtxt
+
