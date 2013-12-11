@@ -277,13 +277,15 @@ def display(isPresent, repos):
     Print version
     """
     versionfield = 0
+    stableversion = ''
     if isPresent[slxstable]:
         stableversion = repos[slxstable][pkg][versionfield]
 
     if isPresent[slxcurrent]:
         # it has been packaged for Salix current
-        currentversion = repos[slxstable][pkg][versionfield]
-        print pkg + '-' + currentversion, "has already been packaged for ", current
+        currentversion = repos[slxcurrent][pkg][versionfield]
+	packager = stripNum(repos[slxcurrent][pkg][2])
+        print pkg + '-' + currentversion, "has already been packaged for ", current, "by", packager
         if stableversion:
             print "The previous version was", stableversion
     elif not isPresent[slxstable]:
