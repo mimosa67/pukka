@@ -1,0 +1,9 @@
+#! /bin/sh
+
+# update special slapt-get package cache
+
+echo "Updating custom slapt-get package cache ..."
+
+alias slapt-get14='slapt-get --config /etc/slapt-get/slapt-getrc14.0'
+slapt-get14 --update > /dev/null
+#slapt-get14 --search $@

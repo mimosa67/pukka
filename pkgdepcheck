@@ -120,6 +120,8 @@ os.system('mkdir -p ' + configdir)
 for hdir in (".", configdir, "/usr/libexec/pkgdepcheck"):
     if os.path.exists(os.path.join(hdir, "src.sh")):
         srcparse = os.path.join(hdir, "src.sh")
+slaptsearch = "/usr/libexec/pkgdepcheck/slapt-get14.0 "
+slaptupdate = "/usr/libexec/pkgdepcheck/slapt-get-update"
 
 #repo index vars
 slxstable, slxcurrent, slkstable, slkcurrent = 0, 1, 2, 3
@@ -301,6 +303,8 @@ def display(isPresent, repos):
                 print "Although it was not packaged for Slackware", stable, "either, there is a package for Slackware", current
         else:
             print "There is no record of any such package."
+            print "Doing slapt-get --search to look for related packages ..."
+            slaptSearch(pkg)
     else:
         # it was packaged for Salix last time, tell about Slack
         print pkg, "has not been packaged yet. The previous version was:", pkg + '-' + stableversion
@@ -418,6 +422,21 @@ def elem(item, listobj):
             return True
     return False
 
+def slaptSearch(pkg):
+    """
+    Do slapt-get --search [pkg]
+    slaptSearch(pkg)
+    """
+    os.system(slaptsearch + pkg)
+
+def slaptUpdate():
+    """
+    Update slapt-get 14.0 cache
+    slaptUpdate()
+    """
+    os.system(slaptupdate)
+
+
 ###### main ...
 
 def main():
@@ -429,6 +448,10 @@ def main():
                 filename = filename + expa
             if update or not os.path.isfile(configdir + filename):    
                 pkgtxturl(repo, target, release, expa)
+    # get custom slapt-get package cache
+    if update:
+        slaptUpdate() # update 14.0 slapt-get package cache
+	print "Done."
 
     #carry out specified actions
     if download and download_source:

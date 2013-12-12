@@ -1,0 +1,17 @@
+# Working directory for local storage/cache.
+WORKINGDIR=/var/slapt-get14.0
+
+# Exclude package names and expressions.
+# To exclude pre and beta packages, add this to the exclude:
+#   [0-9\_\.\-]{1}pre[0-9\-\.\-]{1}
+EXCLUDE=^aaa_elflibs,^aaa_base,^devs,^gcc.*,^glibc.*,^kernel-.*,^mcabber,^udev,^rootuser-settings,^salixtools*,^zzz-settings.*,-i?86-
+
+# The Slackware repositories, including dependency information
+SOURCE=http://download.salixos.org/x86_64/slackware-14.0/:OFFICIAL
+SOURCE=http://download.salixos.org/x86_64/slackware-14.0/extra/:OFFICIAL
+
+# The Salix repository
+SOURCE=http://download.salixos.org/x86_64/14.0/:PREFERRED
+
+# Local repositories
+# SOURCE=file:///var/www/packages/:CUSTOM
