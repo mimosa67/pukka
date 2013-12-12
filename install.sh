@@ -10,6 +10,6 @@ mkdir -p /usr/libexec/pkgdepcheck
 cp ./src.sh /usr/libexec/pkgdepcheck
 cp ./slapt-get14.0 /usr/libexec/pkgdepcheck
 cp ./slapt-get-update /usr/libexec/pkgdepcheck
-cp ./pkgdepcheck /usr/bin
+cp ./pkgdepcheck /usr/local/bin
 mkdir -p /var/slapt-get14.0
 cp slapt-getrc14.0 /etc/slapt-get
