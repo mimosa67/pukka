@@ -2,14 +2,7 @@
 # install.sh
 #install pkgdepcheck
 
-chmod +x pkgdepcheck
-chmod +x src.sh
-chmod +x slapt-get14.0
-chmod +x slapt-get-update
+chmod +x pkgdepcheck slkparse.sh slapt-get-search.sh slapt-get-update.sh
 mkdir -p /usr/libexec/pkgdepcheck
-cp ./src.sh /usr/libexec/pkgdepcheck
-cp ./slapt-get14.0 /usr/libexec/pkgdepcheck
-cp ./slapt-get-update /usr/libexec/pkgdepcheck
+cp slkparse.sh slapt-get-search.sh slapt-get-update.sh /usr/libexec/pkgdepcheck
 cp ./pkgdepcheck /usr/local/bin
-mkdir -p /var/slapt-get14.0
-cp slapt-getrc14.0 /etc/slapt-get
