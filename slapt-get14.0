@@ -1,7 +1,0 @@
-#! /bin/sh
-
-# search stable repo for a package
-
-alias slapt-get14='/usr/sbin/slapt-get --config /etc/slapt-get/slapt-getrc14.0'
-#slapt-get14 --update > /dev/null
-slapt-get14 --search $@
