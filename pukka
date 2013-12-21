@@ -127,7 +127,7 @@ configfile = SimpleConfig(configdir + 'pkgdepcheckrc')
 def chkConfig(config, default, newval):
     if newval:
         config.set(default, newval)
-        print "The default for", default, "has been chenged to", newval
+        print "The default for", default, "has been changed to", newval
         config.write()
         return newval
     else:
@@ -371,10 +371,12 @@ def repoToDict(release):
     slx = os.path.isfile(configdir + slxdict)
     slk = os.path.isfile(configdir + slkdict)
     if not (slx and slk): # if either pickle is missing, do both again
-        print "missing pickle"
-        print "parsing package data"
-        db = Package.parse(Package(), configdir + slaptdir + slash + 'package_data') 
-        print "done parsing package data"
+        pdata = configdir + slaptdir + slash + 'package_data'
+        if os.path.isfile(pdata):
+            db = Package.parse(Package(), pdata) 
+        else:
+            print "data is missing"
+            print "why????"
         salixdb, slackdb = {}, {} # initialise empty dicts
         pkgrelfield=2
         for pkg in db: # allocate to salix or slackware
