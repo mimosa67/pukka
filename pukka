@@ -119,7 +119,8 @@ scriptdir = '/usr/libexec/pukka/'
 wd = os.getcwd() + slash # we were called from here
 configdir = os.path.expanduser('~/.config/pukka/')
 os.system('mkdir -p ' + configdir)
-os.system('cp ' + scriptdir + '*rc ' + configdir)
+if not os.path.isfile(configdir + 'pukkarc'):
+    os.system('cp ' + scriptdir + 'pukkarc ' + configdir)
 slkparse = scriptdir + 'slkparse.sh'
 slaptsearch = scriptdir + 'slapt-get-search.sh '
 slaptupdate = scriptdir + 'slapt-get-update.sh '
@@ -432,7 +433,6 @@ def slaptUpdate(repo, release):
     slaptUpdate()
     """
     args=slaptupdate + repo + ' ' + release + ' ' + mirror
-    print 'args', args
     os.system(args)
     slxdict, slkdict = pickleNames(release)
     clean(configdir, [slxdict])
