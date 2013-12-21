@@ -17,6 +17,7 @@ mirror=$3
 if [ -z "$3" ]; then
   mirror="http://download.salixos.org/"
 fi
+echo "mirror" $mirror
 arch=$1
 ver=$2
 mkdir -p slapt-get-${arch}-${ver}

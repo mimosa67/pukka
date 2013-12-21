@@ -431,7 +431,8 @@ def slaptUpdate(repo, release):
     Update slapt-get 14.0 cache
     slaptUpdate()
     """
-    args=slaptupdate + repo + ' ' + release
+    args=slaptupdate + repo + ' ' + release + ' ' + mirror
+    print 'args', args
     os.system(args)
     slxdict, slkdict = pickleNames(release)
     clean(configdir, [slxdict])
