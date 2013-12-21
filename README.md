@@ -1,11 +1,11 @@
-pkgdepcheck
+pukka
 ===========
 
 Compare two Salix / Slackware repos and deduce information about missing packages; download package files
 
 This script uses code by Frédéric Galusik, from his pkgtxt2db, gratefully acknowledged. It also depends on his python-parsepkgtxt, available from Salix repos or via pip.
 
-pkgdepcheck -h gives a rundown of the options, but the main ones are:
+pukka -h gives a rundown of the options, but the main ones are:
 
 -p to give information on a particular package
 

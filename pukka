@@ -188,22 +188,23 @@ def getFiles(pkg, release):
     print pkgtxtFilename, 'checking for', pkg
     if elem(pkg, db):
         fields = db[pkg]
+        urlbase = mirror + repo + slash + release
         if download_source: 
             apptype = fields[subdir] + slash
-            urlbase = mirror + repo + slash + release + '/source' + apptype[6:] + pkg + slash
-            downloadURL(wd, urlbase + 'SLKBUILD')
+            srcbase = urlbase + '/source' + apptype[6:] + pkg + slash
+            downloadURL(wd, srcbase + 'SLKBUILD')
             os.system(slkparse + ' > ' + configdir + 'sourcelist')
             f = open(configdir + "sourcelist", "r")
             sources = f.read()
             f.close()
             clean(configdir, ['sourcelist']) 
             for filename in sources.split():
-                downloadURL(wd, urlbase + filename)
+                downloadURL(wd, srcbase + filename)
         if download_package:
-            urlbase = mirror + repo + slash + release + fields[subdir] + slash
+            pkgbase = urlbase + fields[subdir] + slash
             pkgnamebase = string.join([pkg, fields[version], fields[parch], fields[pkgrel]], '-')
             for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
-                url = urlbase+pkgnamebase+suffix
+                url = pkgbase + pkgnamebase+suffix
                 downloadURL(wd, url)
     else:
         slaptSearch(pkg, release)
@@ -253,7 +254,7 @@ def display(isPresent, repos):
         # it has been packaged for Salix current
         currentversion = repos[slxcurrent][pkg][versionfield]
 	packager = stripNum(repos[slxcurrent][pkg][2])
-        print pkg + '-' + currentversion, "has already been packaged for ", current, "by", packager
+        print pkg + '-' + currentversion, "has already been packaged for", current, "by", packager
         if stableversion:
             print "The previous version was", stableversion
     elif not isPresent[slxstable]:
