@@ -1,7 +1,7 @@
 #!/bin/sh
 #create package database for arch, version, mirror
 #defaults to http://download.salixos.org
-cd /home/$USER/.config/pkgdepcheck
+cd /home/$USER/.config/pukka
 help() {
   echo "syntax: $(basename $0) i486|x86_64 version [mirror]"
 }

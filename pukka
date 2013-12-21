@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 #
 #
-# pkgdepcheck.py
+# pukka.py
 #
 # Script to find missing dependencies in current based on stable
 #
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 #                                                                             #
-# pkgdepcheck - a script to find subdependencies                              #
+# pukka - a script to find subdependencies                              #
 #                                                                             #
 # Copyright Tim Beech <tim~beech~at~gmail~dot~com>.                      #
 #                                                                             #
@@ -41,10 +41,10 @@ import cPickle as pickle
 
 # Parse the CLI options
 parser = argparse.ArgumentParser(
-        prog='pkgdepcheck',
+        prog='pukka',
         description='Download and interrogate PACKAGES.TXTs',
         epilog=
-        'e.g. pkgdepcheck -p midori, check for midori and its dependencies without refreshing package data')
+        'e.g. pukka -p midori, check for midori and its dependencies without refreshing package data')
 
 parser.add_argument('-u', '--update', action="store_true",
         default=False,
@@ -115,9 +115,9 @@ slash = '/'
 slxstable, slxcurrent, slkstable, slkcurrent = 0, 1, 2, 3
 
 #dirs, paths to scripts
-scriptdir = '/usr/libexec/pkgdepcheck/'
+scriptdir = '/usr/libexec/pukka/'
 wd = os.getcwd() + slash # we were called from here
-configdir = os.path.expanduser('~/.config/pkgdepcheck/')
+configdir = os.path.expanduser('~/.config/pukka/')
 os.system('mkdir -p ' + configdir)
 os.system('cp ' + scriptdir + '*rc ' + configdir)
 slkparse = scriptdir + 'slkparse.sh'
@@ -125,7 +125,7 @@ slaptsearch = scriptdir + 'slapt-get-search.sh '
 slaptupdate = scriptdir + 'slapt-get-update.sh '
 
 #get or update default config values
-configfile = SimpleConfig(configdir + 'pkgdepcheckrc')
+configfile = SimpleConfig(configdir + 'pukkarc')
 
 def chkConfig(config, default, newval):
     if newval:
