@@ -31,7 +31,8 @@ SOURCE=$mirror/$srcdir/slackware-$ver/:OFFICIAL
 SOURCE=$mirror/$srcdir/slackware-$ver/extra/:OFFICIAL
 SOURCE=$mirror/$srcdir/$ver/:PREFERRED
 EOF
-echo "Downloading package data for", $arch, $ver
+echo "Downloading package data for $arch $ver"
 ROOT=$PWD
 export ROOT
-/usr/sbin/slapt-get -c $PWD/slapt-getrc-$arch-$ver -u> /dev/null
+/usr/sbin/slapt-get --config $PWD/slapt-getrc-$arch-$ver -u> /dev/null
+echo "Done"

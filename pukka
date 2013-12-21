@@ -151,45 +151,6 @@ def inputArch(arg):
 arch = args.arch
 repo = inputArch(arch) #get i486 or x86_64
 
-
-##### The following function pkgtxturl downloads PACKAGES.TXT
-
-def pkgtxturl(repo='i486', target='salix', release='14.0'):
-    """
-    Download the slackware/salix PACKAGES.TXT.gz from a built URL and unzip it.
-    Ensure corresponding old dictionary is removed as well.
-    pkgtxturl(repo, target, release, |extra|patches)
-    """
-    # adjust the target
-    if target == 'slackware':
-        target = 'slackware-'
-    if target[0:5] == 'salix':
-        target = ''
-
-    # Build the URL to fetch PACKAGES.TXT
-    url = mirror + repo + slash + target + release + pkgtxtz
-
-    # remove old files
-    clean([pkgtxtz, pkgtxt], configdir)
-
-    # fetch
-    downloadURL(configdir, url)
-
-    # unzip it
-    fout = open(configdir + pkgtxt, 'w')
-    with gzip.open(configdir + pkgtxtz, 'rb') as f:
-        for line in f:
-            fout.write(line)
-    fout.close()
-
-	# rename and clean up
-    if target == '':
-        target = 'salix-'
-    filename = target + repo + '_' + release  
-    os.rename(configdir + pkgtxt, configdir + filename)
-    dictname = filename + '.' +  'pickle'
-    clean([pkgtxtz,pkgtxt,dictname], configdir) # remove old pickle too
-
 ##### The following function listPackages is for the --packager option
 
 def listPackages(nick):
@@ -212,38 +173,52 @@ def listPackages(nick):
     
 ##### The following functions getSource and getPkgFiles relate to --download option
 
-def getSource(pkg):
+def getFiles(pkg, version):
     """
     Download source and package files for a given package
     from stable Salix repo; check first.
     getSource(pkg)
     """
+    version, parch, pkgrel, subdir = 0, 1, 2, 6
     db = openDict('salix-', stable)
     pkgtxtFilename = 'salix-' + repo + '_' + stable
-    print pkgtxtFilename, ' checking for ', pkg
+    print pkgtxtFilename, ' checking for', pkg
     if elem(pkg, db):
-        subdir = db[pkg][6] + slash
-        urlbase = mirror + repo + slash + stable + '/source' + subdir[6:] + pkg + slash
-        downloadURL(wd, urlbase + 'SLKBUILD')
-        os.system(slkparse + ' > ' + configdir + 'sourcelist')
-        f = open(configdir + "sourcelist", "r")
-        sources = f.read()
-        f.close()
-        clean(['sourcelist'], configdir) 
-        for filename in sources.split():
-            downloadURL(wd, urlbase + filename)
+        fields = db[pkg]
+        if download_source: 
+            apptype = fields[subdir] + slash
+            urlbase = mirror + repo + slash + stable + '/source' + apptype[6:] + pkg + slash
+            downloadURL(wd, urlbase + 'SLKBUILD')
+            os.system(slkparse + ' > ' + configdir + 'sourcelist')
+            f = open(configdir + "sourcelist", "r")
+            sources = f.read()
+            f.close()
+            clean(['sourcelist'], configdir) 
+            for filename in sources.split():
+                downloadURL(wd, urlbase + filename)
+        if download_package:
+            urlbase = mirror + repo + slash + stable + fields[subdir] + slash
+            pkgnamebase = string.join([pkg, fields[version], fields[parch], fields[pkgrel]], '-')
+            for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
+                url = urlbase+pkgnamebase+suffix
+                downloadURL(wd, url)
+
     else:
-        print "Package not available in Salix ", stable
+        slaptSearch(pkg, version)
 
 def getPkgFiles(pkg):
     version, parch, pkgrel, subdir = 0, 1, 2, 6
     destdir = pkg + '-packagefiles'
     db = openDict('salix-', stable)
-    urlbase = mirror + repo + slash + stable + db[pkg][subdir] + slash
-    pkgnamebase = string.join([pkg, db[pkg][version], db[pkg][parch], db[pkg][pkgrel]], '-')
-    for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
-        url = urlbase+pkgnamebase+suffix
-        downloadURL(wd, url)
+    if elem(pkg, db):
+        urlbase = mirror + repo + slash + stable + db[pkg][subdir] + slash
+        pkgnamebase = string.join([pkg, db[pkg][version], db[pkg][parch], db[pkg][pkgrel]], '-')
+        for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
+            url = urlbase+pkgnamebase+suffix
+            downloadURL(wd, url)
+    else:
+        slaptSearch(pkg, version)
+
 
 
 ##### These functions correspond to the --package and --depcheck options
@@ -306,9 +281,7 @@ def display(isPresent, repos):
         elif isPresent[slkcurrent]:
                 print "Although it was not packaged for Slackware", stable, "either, there is a package for Slackware", current
         else:
-            print "There is no record of any such package."
-            print "Doing slapt-get --search to look for related packages ..."
-            slaptSearch(pkg)
+            slaptSearch(pkg, stable)
     else:
         # it was packaged for Salix last time, tell about Slack
         print pkg, "has not been packaged yet. The previous version was:", pkg + '-' + stableversion
@@ -318,7 +291,6 @@ def display(isPresent, repos):
                 print "There was no Slackware package for", stable
         elif isPresent[slkstable]:
             print "It was packaged for Slackware", stable, "but has not yet been packaged for", current
-            print
 
 def listDeps(package, repos):
     """
@@ -331,7 +303,8 @@ def listDeps(package, repos):
     c = repos[slxcurrent]
     S = repos[slkstable]
     C = repos[slkcurrent]
-    for dep in s[package][depfield].split(","):
+    stabledeps = s[package][depfield]
+    for dep in stabledeps.split(","):
         if not elem(dep, c) and elem(dep,s):
             deps.append(dep)
             if not elem(dep, S) and not elem('|', dep):
@@ -395,18 +368,21 @@ def repoToDict(release):
     if update:
         clean(slxdict, configdir)
         clean(slkdict, configdir)
-    db = Package.parse(Package(), configdir + slaptdir + slash + 'package_data') 
     slx = os.path.isfile(configdir + slxdict)
     slk = os.path.isfile(configdir + slkdict)
     if not (slx and slk): # if either pickle is missing, do both again
+        print "missing pickle"
+        print "parsing package data"
+        db = Package.parse(Package(), configdir + slaptdir + slash + 'package_data') 
+        print "done parsing package data"
         salixdb, slackdb = {}, {} # initialise empty dicts
         pkgrelfield=2
         for pkg in db: # allocate to salix or slackware
             fields = db[pkg] # avoid consulting dict twice, while improving readability :)
             if stripNum(fields[pkgrelfield]): # if pkgrel has any letters, it's a Salix one
                 salixdb.update({pkg:fields})
-                else:
-                    slackdb.update({pkg:fields})
+            else:
+                slackdb.update({pkg:fields})
         for distro in [slxdict, slkdict]: # save pickled dicts
             with open(configdir + distro, 'wb') as handle:
                 pickle.dump(db, handle)
@@ -450,12 +426,16 @@ def elem(item, listobj):
             return True
     return False
 
-def slaptSearch(pkg):
+def slaptSearch(pkg, version):
     """
     Do slapt-get --search [pkg]
-    slaptSearch(pkg)
+    slaptSearch(pkg, version)
     """
-    os.system(slaptsearch + pkg)
+    print "There is no record of any such package for", version
+    print "Doing slapt-get --search to look for related packages ..."
+    command = [slaptsearch, configdir, arch, version, pkg]
+    os.system(' '.join(command))
+
 
 def slaptUpdate(repo, version):
     """
@@ -473,13 +453,10 @@ def main():
         dirname = "slapt-get-" + repo + "-" + release
         if update or not os.path.isdir(configdir + dirname):    
             slaptUpdate(repo, release)
-    print "Done."
 
     #carry out specified actions
-    if download and download_source:
-        getSource(download)
-    if download and download_package:
-        getPkgFiles(download)
+    if download:
+        getFiles(download, stable)
     if packager:
         listPackages(packager)
     if pkg: #first make dictionaries
@@ -493,7 +470,8 @@ def main():
         else: #check for unpackaged dependencies
             pkgdict = overview(repos)
             if not elem(pkg,pkgdict):
-                print "There is no package for", pkg
+                print "There is no sign of", pkg, "in", current
+                slaptSearch(pkg, stable)
             elif pkgdict[pkg][slxstable]:
                 deplist = sorted(listDeps(pkg, repos))
                 pipe =[]

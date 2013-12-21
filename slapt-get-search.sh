@@ -1,9 +1,10 @@
 #! /bin/sh
-# requires two args: arch and version
+# requires four args: dir, arch and version - then one package
 # search repo for a package
 
-arch=$1
-ver=$2
+configdir=$1
+arch=$2
+ver=$3
+pkg=$4
 
-alias slapt-get-$arch-$ver='/usr/sbin/slapt-get --config /usr/libexec/pkgdepcheck/slapt-getrc-$arch-$ver'
-slapt-get-$arch-$ver --search $@
+/usr/sbin/slapt-get --config ${configdir}/slapt-getrc-$arch-$ver --search $pkg
