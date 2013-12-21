@@ -86,6 +86,10 @@ parser.add_argument('-c', '--current', action="store",
         dest='current', default='',
         help = 'Specify release for current, default 14.1')
 
+parser.add_argument('-C', '--dlcurrent', action="store_true",
+        default=False,
+        help='Download source or package files from current repo')
+
 parser.add_argument('-m', '--mirror', action="store",
         dest='mirror', default='',
         help = 'Choose a different mirror (default http://download.salixos.org)')
@@ -101,6 +105,7 @@ pkg = args.package
 download = args.download
 download_source = not args.nosource
 download_package = not args.nopackage
+download_current = args.dlcurrent
 depcheck= args.Package
 if depcheck:
     pkg = depcheck
@@ -114,9 +119,7 @@ scriptdir = '/usr/libexec/pkgdepcheck/'
 wd = os.getcwd() + slash # we were called from here
 configdir = os.path.expanduser('~/.config/pkgdepcheck/')
 os.system('mkdir -p ' + configdir)
-#for hdir in (".", configdir, "/usr/libexec/pkgdepcheck"):
-#    if os.path.exists(os.path.join(hdir, "src.sh")):
-#        srcparse = os.path.join(hdir, "src.sh")
+os.system('cp ' + scriptdir + '*rc ' + configdir)
 slkparse = scriptdir + 'slkparse.sh'
 slaptsearch = scriptdir + 'slapt-get-search.sh '
 slaptupdate = scriptdir + 'slapt-get-update.sh '
@@ -171,55 +174,39 @@ def listPackages(nick):
     for pkg in p:
         print pkg
     
-##### The following functions getSource and getPkgFiles relate to --download option
+##### The following function getFiles is for --download option
 
-def getFiles(pkg, version):
+def getFiles(pkg, release):
     """
     Download source and package files for a given package
-    from stable Salix repo; check first.
-    getSource(pkg)
+    from specified Salix repo; check first.
+    getSource(pkg), version
     """
     version, parch, pkgrel, subdir = 0, 1, 2, 6
-    db = openDict('salix-', stable)
-    pkgtxtFilename = 'salix-' + repo + '_' + stable
-    print pkgtxtFilename, ' checking for', pkg
+    db = openDict('salix-', release)
+    pkgtxtFilename = 'salix-' + repo + '_' + release
+    print pkgtxtFilename, 'checking for', pkg
     if elem(pkg, db):
         fields = db[pkg]
         if download_source: 
             apptype = fields[subdir] + slash
-            urlbase = mirror + repo + slash + stable + '/source' + apptype[6:] + pkg + slash
+            urlbase = mirror + repo + slash + release + '/source' + apptype[6:] + pkg + slash
             downloadURL(wd, urlbase + 'SLKBUILD')
             os.system(slkparse + ' > ' + configdir + 'sourcelist')
             f = open(configdir + "sourcelist", "r")
             sources = f.read()
             f.close()
-            clean(['sourcelist'], configdir) 
+            clean(configdir, ['sourcelist']) 
             for filename in sources.split():
                 downloadURL(wd, urlbase + filename)
         if download_package:
-            urlbase = mirror + repo + slash + stable + fields[subdir] + slash
+            urlbase = mirror + repo + slash + release + fields[subdir] + slash
             pkgnamebase = string.join([pkg, fields[version], fields[parch], fields[pkgrel]], '-')
             for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
                 url = urlbase+pkgnamebase+suffix
                 downloadURL(wd, url)
-
     else:
-        slaptSearch(pkg, version)
-
-def getPkgFiles(pkg):
-    version, parch, pkgrel, subdir = 0, 1, 2, 6
-    destdir = pkg + '-packagefiles'
-    db = openDict('salix-', stable)
-    if elem(pkg, db):
-        urlbase = mirror + repo + slash + stable + db[pkg][subdir] + slash
-        pkgnamebase = string.join([pkg, db[pkg][version], db[pkg][parch], db[pkg][pkgrel]], '-')
-        for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
-            url = urlbase+pkgnamebase+suffix
-            downloadURL(wd, url)
-    else:
-        slaptSearch(pkg, version)
-
-
+        slaptSearch(pkg, release)
 
 ##### These functions correspond to the --package and --depcheck options
 
@@ -346,14 +333,21 @@ def downloadURL(location, url):
         print "URL Error:", e.reason, url
         return False
 
-def clean(files, directory):
+def clean(directory, files):
     """
     Remove any stray file or archive
-    clean(files, directory)
+    clean(directory, files)
     """
     for f in files:
         if os.path.isfile(directory + f):
             os.remove(directory + f)
+
+def pickleNames(release):
+    slaptdir = 'slapt-get-' + repo + '-' + release
+    slxdict = 'salix' + slaptdir + '.' + 'pickle'
+    slkdict = 'slackware' + slaptdir + '.' + 'pickle'
+    return slxdict, slkdict
+
 
 def repoToDict(release):
     """
@@ -363,20 +357,12 @@ def repoToDict(release):
     # returns a tuple for (salix, slackware)
     # these aren't the dictionaries, just their filenames
     slaptdir = 'slapt-get-' + repo + '-' + release
-    slxdict = 'salix' + slaptdir + '.' + 'pickle'
-    slkdict = 'salix' + slaptdir + '.' + 'pickle'
-    if update:
-        clean(slxdict, configdir)
-        clean(slkdict, configdir)
+    slxdict, slkdict = pickleNames(release)
     slx = os.path.isfile(configdir + slxdict)
     slk = os.path.isfile(configdir + slkdict)
     if not (slx and slk): # if either pickle is missing, do both again
         pdata = configdir + slaptdir + slash + 'package_data'
-        if os.path.isfile(pdata):
-            db = Package.parse(Package(), pdata) 
-        else:
-            print "data is missing"
-            print "why????"
+        db = Package.parse(Package(), pdata) 
         salixdb, slackdb = {}, {} # initialise empty dicts
         pkgrelfield=2
         for pkg in db: # allocate to salix or slackware
@@ -388,7 +374,7 @@ def repoToDict(release):
         for distro in [slxdict, slkdict]: # save pickled dicts
             with open(configdir + distro, 'wb') as handle:
                 pickle.dump(db, handle)
-    return slxdict, slkdict # filenames
+    return slxdict, slkdict # filenames, we have made sure they're really there
 
 def parseRepos():
     """
@@ -428,24 +414,27 @@ def elem(item, listobj):
             return True
     return False
 
-def slaptSearch(pkg, version):
+def slaptSearch(pkg, release):
     """
     Do slapt-get --search [pkg]
     slaptSearch(pkg, version)
     """
-    print "There is no record of any such package for", version
+    print "There is no record of any such package for", release
     print "Doing slapt-get --search to look for related packages ..."
-    command = [slaptsearch, configdir, arch, version, pkg]
+    command = [slaptsearch, configdir, arch, release, pkg]
     os.system(' '.join(command))
 
 
-def slaptUpdate(repo, version):
+def slaptUpdate(repo, release):
     """
     Update slapt-get 14.0 cache
     slaptUpdate()
     """
-    os.system(slaptupdate + repo + ' ' + version)
-
+    args=slaptupdate + repo + ' ' + release
+    os.system(args)
+    slxdict, slkdict = pickleNames(release)
+    clean(configdir, [slxdict])
+    clean(configdir, [slkdict])
 
 ###### main ...
 
@@ -458,7 +447,10 @@ def main():
 
     #carry out specified actions
     if download:
-        getFiles(download, stable)
+        release = stable
+        if download_current:
+            release = current
+        getFiles(download, release)
     if packager:
         listPackages(packager)
     if pkg: #first make dictionaries
