@@ -139,7 +139,7 @@ def chkConfig(config, default, newval):
 
 stable = chkConfig(configfile, 'stable', args.stable)
 current = chkConfig(configfile, 'current', args.current)
-mirror = chkConfig(configfile, 'mirror', args.mirror)
+mirror = wellformedURL(chkConfig(configfile, 'mirror', args.mirror))
 
 
 #arch
@@ -437,6 +437,14 @@ def slaptUpdate(repo, release):
     slxdict, slkdict = pickleNames(release)
     clean(configdir, [slxdict])
     clean(configdir, [slkdict])
+
+def wellformedURL(raw):
+	"""
+	Clean up URL. 
+	wellformedURL(url)
+	"""
+	# a mere first stab
+	return raw + slash
 
 ###### main ...
 
