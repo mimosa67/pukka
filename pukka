@@ -196,8 +196,8 @@ def getFiles(pkg, release):
     """
     version, parch, pkgrel, subdir = 0, 1, 2, 6
     target = 'salix-'
-    if download_slack:
-        target = 'slackware-'
+#    if download_slack:
+#        target = 'slackware-'
     db = openDict(target, release)
     if elem(pkg, db):
         fields = db[pkg]
@@ -417,7 +417,6 @@ def parseRepos():
     repos = []
     for target in ['salix-', 'slackware-']:
         for release in [stable, current]:
-            print target, release
             db = openDict(target, release)
             repos.append(db)
     return repos
