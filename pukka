@@ -90,6 +90,10 @@ parser.add_argument('-C', '--dlcurrent', action="store_true",
         default=False,
         help='Download source or package files from current repo')
 
+#parser.add_argument('-S', '--dlslack', action="store_true",
+#        default=False,
+#        help='Download source or package files from Slackware repo')
+
 parser.add_argument('-m', '--mirror', action="store",
         dest='mirror', default='',
         help = 'Choose a different mirror (default http://download.salixos.org)')
@@ -97,8 +101,6 @@ parser.add_argument('-m', '--mirror', action="store",
 args = parser.parse_args()
 
 #vars
-pkgtxtz = 'PACKAGES.TXT.gz'
-pkgtxt = 'PACKAGES.TXT'
 update = args.update
 packager = args.packager
 pkg = args.package
@@ -106,6 +108,7 @@ download = args.download
 download_source = not args.nosource
 download_package = not args.nopackage
 download_current = args.dlcurrent
+#download_slack = args.dlslack
 depcheck= args.Package
 if depcheck:
     pkg = depcheck
@@ -192,15 +195,18 @@ def getFiles(pkg, release):
     getSource(pkg), version
     """
     version, parch, pkgrel, subdir = 0, 1, 2, 6
-    db = openDict('salix-', release)
-    pkgtxtFilename = 'salix-' + repo + '_' + release
-    print pkgtxtFilename, 'checking for', pkg
+    target = 'salix-'
+    if download_slack:
+        target = 'slackware-'
+    db = openDict(target, release)
     if elem(pkg, db):
         fields = db[pkg]
-        urlbase = mirror + repo + slash + release
+        if not download_slack:
+            target = ''
+        urlbase = mirror + repo + slash + target + release
+        targetdir, apptype = splitPath(fields[subdir])
         if download_source: 
-            apptype = fields[subdir] + slash
-            srcbase = urlbase + '/source' + apptype[6:] + pkg + slash
+            srcbase = urlbase + '/source' + apptype + slash + pkg + slash
             downloadURL(wd, srcbase + 'SLKBUILD')
             os.system(slkparse + ' > ' + configdir + 'sourcelist')
             f = open(configdir + "sourcelist", "r")
@@ -210,13 +216,29 @@ def getFiles(pkg, release):
             for filename in sources.split():
                 downloadURL(wd, srcbase + filename)
         if download_package:
-            pkgbase = urlbase + fields[subdir] + slash
+            targetdir = targetdir +  apptype
+            pkgbase = urlbase + targetdir + slash
             pkgnamebase = string.join([pkg, fields[version], fields[parch], fields[pkgrel]], '-')
             for suffix in ['.dep', '.md5', '.meta', '.txt', '.txz']:
                 url = pkgbase + pkgnamebase+suffix
                 downloadURL(wd, url)
     else:
         slaptSearch(pkg, release)
+
+
+def splitPath(subdir):
+    """
+    Take '/salix/ap' (or the like) and return the two parts
+    slackSalix(subdir)
+    """
+    target, apptype = subdir.split(slash)[1:]
+    target, apptype = slash + target, slash + apptype
+    return target, apptype
+
+
+
+
+
 
 ##### These functions correspond to the --package and --depcheck options
 
@@ -381,9 +403,10 @@ def repoToDict(release):
                 salixdb.update({pkg:fields})
             else:
                 slackdb.update({pkg:fields})
-        for distro in [slxdict, slkdict]: # save pickled dicts
-            with open(configdir + distro, 'wb') as handle:
-                pickle.dump(db, handle)
+        with open(configdir + slxdict, 'wb') as handle:
+            pickle.dump(salixdb, handle)
+        with open(configdir + slkdict, 'wb') as handle:
+            pickle.dump(slackdb, handle)
     return slxdict, slkdict # filenames, we have made sure they're really there
 
 def parseRepos():
@@ -393,9 +416,10 @@ def parseRepos():
     """
     repos = []
     for target in ['salix-', 'slackware-']:
-        for version in [stable, current]:
-                db = openDict(target, version)
-                repos.append(db)
+        for release in [stable, current]:
+            print target, release
+            db = openDict(target, release)
+            repos.append(db)
     return repos
 
 def openDict(target, release):
@@ -427,12 +451,12 @@ def elem(item, listobj):
 def slaptSearch(pkg, release):
     """
     Do slapt-get --search [pkg]
-    slaptSearch(pkg, version)
+    slaptSearch(pkg, release)
     """
     print "There is no record of any such package for", release
     print "Doing slapt-get --search to look for related packages ..."
     command = [slaptsearch, configdir, arch, release, pkg]
-    os.system(' '.join(command))
+    os.system(' '.join(command)) 
 
 
 def slaptUpdate(repo, release):
