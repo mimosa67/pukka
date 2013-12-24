@@ -203,7 +203,8 @@ def getFiles(pkg, release):
     db = openDict(target, release)
     if elem(pkg, db):
         fields = db[pkg]
-        if not download_slack:
+#        if not download_slack:
+        if True:				#temporary fix while -S not implemented
             target = ''
         urlbase = mirror + repo + slash + target + release
         targetdir, apptype = splitPath(fields[subdir])
@@ -331,8 +332,18 @@ def listDeps(package, repos):
             if not elem(dep, S) and not elem('|', dep):
                 for subdep in listDeps(dep, repos):
                     deps.append(subdep)
-    return sorted(list(set(deps))) # turn list to set to remove duplicates
-
+#	#what depends on our package?
+#	needs = []
+#	for pkg in s:
+#		if elem (package, s[pkg][depfield].split(",")):
+#			needs.append(pkg)
+#	if needs:
+#		print "These packages depend on", package
+#		for package in sorted(list(set(needs))):
+#			print package
+#		
+#    return sorted(list(set(deps))) # turn list to set to remove duplicates
+#
 
 ##### The following are general helper functions
 
