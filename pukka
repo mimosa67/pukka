@@ -164,6 +164,8 @@ def inputArch(arg):
     else:
         return 'i486'
 arch = args.arch
+if arch == 'i686':
+	arch = 'i486' #this variable seems to be being used to make pickle names or slapt-get dir names
 repo = inputArch(arch) #get i486 or x86_64
 
 ##### The following function listPackages is for the --packager option
