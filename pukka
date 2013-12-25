@@ -329,6 +329,7 @@ def listDeps(package, repos):
             if not elem(dep, S) and not elem('|', dep):
                 for subdep in listDeps(dep, repos):
                     deps.append(subdep)
+    return sorted(list(set(deps))) # turn list to set to remove duplicates
 #	#what depends on our package?
 #	needs = []
 #	for pkg in s:
