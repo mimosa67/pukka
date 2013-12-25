@@ -163,10 +163,7 @@ def inputArch(arg):
         return 'x86_64'
     else:
         return 'i486'
-arch = args.arch
-if arch == 'i686':
-	arch = 'i486' #this variable seems to be being used to make pickle names or slapt-get dir names
-repo = inputArch(arch) #get i486 or x86_64
+repo = inputArch(args.arch) #get i486 or x86_64
 
 ##### The following function listPackages is for the --packager option
 
@@ -467,7 +464,7 @@ def slaptSearch(pkg, release):
     """
     print "There is no record of any such package for", release
     print "Doing slapt-get --search to look for related packages ..."
-    command = [slaptsearch, configdir, arch, release, pkg]
+    command = [slaptsearch, configdir, repo, release, pkg]
     os.system(' '.join(command)) 
 
 
