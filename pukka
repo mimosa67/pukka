@@ -330,6 +330,7 @@ def listDeps(package, repos):
                 for subdep in listDeps(dep, repos):
                     deps.append(subdep)
     return sorted(list(set(deps))) # turn list to set to remove duplicates
+
 #	#what depends on our package?
 #	needs = []
 #	for pkg in s:
@@ -511,7 +512,7 @@ def main():
                 print "There is no sign of", pkg, "in", current
                 slaptSearch(pkg, stable)
             elif pkgdict[pkg][slxstable]:
-                deplist = sorted(listDeps(pkg, repos))
+                deplist = listDeps(pkg, repos)
                 pipe =[]
                 for dep in deplist:
                     print dep
