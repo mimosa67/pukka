@@ -176,11 +176,19 @@ def listPackages(nick):
     dbStable = openDict('salix-', stable)
     dbCurrent = openDict('salix-', current)
     p = []
-    for package in dbStable:
-        pname = stripNum(dbStable[package][2])
-        if pname == nick: # this is one he did
-            if not elem(package,dbCurrent):
+    if not download_current:
+        for package in dbStable:
+            pname = stripNum(dbStable[package][2])
+            if pname == nick: # this is one he did
+                if not elem(package,dbCurrent):
+                    p.append(package)
+        print "These packages were made by", nick, "for", stable, "but not yet for", current, ":"
+    else: # just list what they've pacakged for current so far
+        for package in dbCurrent:
+            pname = stripNum(dbCurrent[package][2])
+            if pname == nick: # this is one he did
                 p.append(package)
+        print "These packages have been made by", nick, "for", current, "so far:"
     p = sorted(p)
     for pkg in p:
         print pkg
