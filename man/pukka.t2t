@@ -1,4 +1,4 @@
-pkgdepcheck
+pukka
 Tim Beech
 %%mtime(%m/%d/%Y)
 
@@ -8,17 +8,17 @@ Tim Beech
 
 = NAME =
 
-pkgdepcheck - Swiss army knife for packagers
+pukka - the Finnish fisherman's knife for packagers
 
 
 = SYNOPSIS =
 
-**pkgdepcheck** [//OPTIONS//] [//STRING(S)//]
+**pukka** [//OPTIONS//] [//STRING(S)//]
 
 
 = DESCRIPTION =
 
-**pkgdepcheck** is a command line tool that uses data from the Slakware
+**pukka** is a command line tool that uses data from the Slakware
 and Salix repositories for two releases to gather useful information 
 about packages. **slapt-get** is used to download package data and
 also to search for packages with a similar name to the search term 
@@ -128,16 +128,16 @@ and exits.
 
 = EXAMPLES =
 
-: **pkgdepcheck -p foo**
+: **pukka -p foo**
 will search package repositories using the term
 "foo" and provide information about the package of that name if
 found; if not, **slapt-get --search foo** is called
 
-: **pkgdepcheck -d foo -np**
+: **pukka -d foo -np**
 will download the source files for package foo to the current
 directory (not a subdirectory).
 
-: **pkgdepcheck --update**
+: **pukka --update**
 will refresh all package data
 names starts with "sl"
 
@@ -155,12 +155,12 @@ installed, including dependencies.
 
 = WEBSITE =
 
-https://github.com/mimosa67/pkgdepcheck
+https://github.com/mimosa67/pukka
 
 
 = AUTHORS =
 
-pkgdepcheck was written by Tim Beech <tim~dot~beech~at~gmail~dot~com>
+pukka was written by Tim Beech <tim~dot~beech~at~gmail~dot~com>
 
 
 = SEE ALSO =

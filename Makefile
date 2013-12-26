@@ -15,10 +15,10 @@ install: install-pukka
 
 install-pukka:
 	install -Dm 755 src/pukka $(DESTDIR)/$(PREFIX)/bin/pukka
-	install -Dm 755 src/ $(DESTDIR)/$(LIBEXEC_DIR)/pukka-helper
-	install -Dm 755 src/pukka-helper $(DESTDIR)/$(LIBEXEC_DIR)/pukka-helper
-	install -Dm 755 src/pukka-askpass $(DESTDIR)/$(LIBEXEC_DIR)/pukka-askpass
-	install -Dm 644 src/pukkarc $(DESTDIR)/$(ETC_DIR)/pukka
+	install -Dm 755 src/slkparse.sh $(DESTDIR)/$(LIBEXEC_DIR)/pukka/slkparse.sh
+	install -Dm 755 src/slapt-get-search.sh $(DESTDIR)/$(LIBEXEC_DIR)/pukka/slapt-get-search.sh
+	install -Dm 755 src/slapt-get-update.sh $(DESTDIR)/$(LIBEXEC_DIR)/pukka/slapt-get-update.sh
+	install -Dm 644 src/pukkarc $(DESTDIR)/$(ETC_DIR)/pukka/pukkarc
 
 install-man:
 	install -Dm 644 man/pukka.man $(DESTDIR)/$(PREFIX)/man/man8/pukka.8
