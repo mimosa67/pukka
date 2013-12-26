@@ -57,6 +57,8 @@ asking.
 takes the initials of a particular packager to see which packages
 from the stable repository have not been packaged for the new
 Salix edition. To be sure about any package, check for detailed information.
+In combination with **-C, --dlcurrent** it simply lists those packages already 
+built by that packager for the upcoming version of Salix.
 
 : **-p, --package** //PACKAGE//
 show details about specified package. Its presence or absence in each
@@ -66,7 +68,7 @@ both Slackware and Salix stable, and is in Slackware current, but not in
 Salix stable, it looks like one where Slaix needs its own version for
 some reason. But that may or may not still be the case. As ever, judgment
 is needed. In particular, if a package has been renamed, there is no
-way the script can tell. If there is no sign of the package, this option
+way **pukka** can tell. If there is no sign of the package, this option
 then runs **slapt-get --search** to suggest similarly-named packages
 that may be what you were actually looking for.
 
@@ -81,29 +83,30 @@ regarding a specific package listed.
 : **-d, --download** //PACKAGE//
 download source and package files for a particular package. The default
 is to get both, from the stable repositories, for the architecture of the 
-running system; however, the options **--no-source**, **--no-package**, 
-**--get-current**, and **--arch**, in combination with **--download**, 
+running system; however, the options **--nosource**, **--nopackage**, 
+**--dlcurrent**, and **--arch**, in combination with **--download**, 
 can be used to change this.
 
-: **-ns, --no-source**
+: **-ns, --nosource**
 disables downloading source files: for instance, **--download {PKG}
 --no-source** would download just the package files for {PKG}.
 
-: **-np, --no-package**
+: **-np, --nopackage**
 disables downloading package files: for instance, **--download {PKG} 
 --no-package** would download just the source files for {PKG}.
 
-: **-C, --get-current**
+: **-C, --dlcurrent**
 by default, the **--download** option gets files from the stable repository;
 **--get-current** chooses the current repository. This will probably be most 
 useful when it is no longer 'current', that is, package submissions have
 ceased for a given release cycle, but it is necessary to upgrade a 
 given package for security or other reasons: in this case, the most
-recent source files will be needed.
+recent source files will be needed. This option also changes the behaviour of **-P**
+**--packager**: all packages built by that packager for the new Salix release are listed.
 
 : **-a, --arch** //STRING//
 specify the architecture of the package repositories to work with. The
-default is the architecture of the running system. Anything containg '64'
+default is the architecture of the running system. Anything containing '64'
 is interpreted as x86_64, otherwise i486 is chosen.
 
 : **-s, --stable** //STRING//
@@ -138,19 +141,7 @@ will download the source files for package foo to the current
 directory (not a subdirectory).
 
 : **pukka --update**
-will refresh all package data
-names starts with "sl"
-
-: **spi -i midori**
-will install a pre-built package by the name "midori", if it exists. If
-it does not exist, it will search the SlackBuild database and if a
-SlackBuild is available, it will build the package and install it using
-that SlackBuild. Dependencies will be resolved in any case.
-
-: **spi -s -i midori rkhunter**
-will simulate the installation of packages named "midori" and "rkhunter"
-showing a list of packages and SlackBuilds that will be
-installed, including dependencies.
+will refresh all package data.
 
 
 = WEBSITE =
