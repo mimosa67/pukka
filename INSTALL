@@ -1,4 +1,4 @@
-Run install.sh as root
+make && make install
 
 Note that pukka depends on python-parsepkgtxt
 

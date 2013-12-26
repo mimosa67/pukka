@@ -119,11 +119,12 @@ slxstable, slxcurrent, slkstable, slkcurrent = 0, 1, 2, 3
 
 #dirs, paths to scripts
 scriptdir = '/usr/libexec/pukka/'
+rcdir - 'etc/pukka/'
 wd = os.getcwd() + slash # we were called from here
 configdir = os.path.expanduser('~/.config/pukka/')
 os.system('mkdir -p ' + configdir)
 if not os.path.isfile(configdir + 'pukkarc'):
-    os.system('cp ' + scriptdir + 'pukkarc ' + configdir)
+    os.system('cp ' + rcdir + 'pukkarc ' + configdir)
 slkparse = scriptdir + 'slkparse.sh'
 slaptsearch = scriptdir + 'slapt-get-search.sh '
 slaptupdate = scriptdir + 'slapt-get-update.sh '
