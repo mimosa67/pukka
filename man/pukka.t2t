@@ -93,12 +93,12 @@ can be used to change this.
 
 : **-ns, --nosource**
 disables downloading of source files: for instance,
-**--download {PKG} --no-source** would download just the package files
+**--download {PKG} --nosource** would download just the package files
 for {PKG}.
 
 : **-np, --nopackage**
 disables downloading package files: for instance,
- **--download {PKG} --no-package** would download just the source files
+ **--download {PKG} --nopackage** would download just the source files
 for {PKG}.
 
 : **-C, --dlcurrent**
@@ -107,8 +107,9 @@ by default, the **--download** option gets files from the stable repository;
 useful when it is no longer 'current', that is, package submissions have
 ceased for a given release cycle, but it is necessary to upgrade a 
 given package for security or other reasons: in this case, the most
-recent source files will be needed. This option also changes the behaviour of **-P**
-**--packager**: all packages built by that packager for the new Salix release are listed.
+recent source files will be needed. This option also changes the behaviour 
+of **--packager**: all packages built by that packager for the new Salix release 
+are listed.
 
 : **-a, --arch** //STRING//
 specify the architecture of the package repositories to work with. The
