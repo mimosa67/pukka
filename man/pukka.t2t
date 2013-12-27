@@ -101,6 +101,9 @@ disables downloading package files: for instance,
  **--download {PKG} --nopackage** would download just the source files
 for {PKG}.
 
+: **-k, --slkbuildonly**
+when downloading source files, download the SLKBUILD only.
+
 : **-C, --dlcurrent**
 by default, the **--download** option gets files from the stable repository;
 **--dlcurrent** chooses the current repository. This will probably be most 
@@ -148,6 +151,10 @@ found; if not, **slapt-get --search foo** is called.
 will download the 64-bit package files for package foo to the current
 directory (not a subdirectory), regardless of the architecture of the 
 running system.
+
+: **pukka -d foo -np -k -C**
+will download the SLKBUILD only, for the latest Salix version, not the
+previous one.
 
 : **pukka --update**
 will refresh all package data.

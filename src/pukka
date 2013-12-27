@@ -75,6 +75,10 @@ parser.add_argument('-np', '--nopackage', action="store_true",
         default=False,
         help='Do not download package files (just get source)')
 
+parser.add_argument('-k', '--slkbuildonly', action="store_true",
+        default=False,
+        help='When downloading source files, just get SLKBUILD')
+
 parser.add_argument('-D', '--depcheck', action="store",
         dest='Package', default='',
         help='Check unpackaged package dependencies')
@@ -108,6 +112,7 @@ pkg = args.package
 download = args.download
 download_source = not args.nosource
 download_package = not args.nopackage
+slkbuild_only = args.slkbuildonly
 download_current = args.dlcurrent
 #download_slack = args.dlslack
 depcheck= args.Package
@@ -218,13 +223,14 @@ def getFiles(pkg, release):
         if download_source: 
             srcbase = urlbase + '/source' + apptype + slash + pkg + slash
             downloadURL(wd, srcbase + 'SLKBUILD')
-            os.system(slkparse + ' > ' + configdir + 'sourcelist')
-            f = open(configdir + "sourcelist", "r")
-            sources = f.read()
-            f.close()
-            clean(configdir, ['sourcelist']) 
-            for filename in sources.split():
-                downloadURL(wd, srcbase + filename)
+            if not slkbuild_only:
+                os.system(slkparse + ' > ' + configdir + 'sourcelist')
+                f = open(configdir + "sourcelist", "r")
+                sources = f.read()
+                f.close()
+                clean(configdir, ['sourcelist']) 
+                for filename in sources.split():
+                    downloadURL(wd, srcbase + filename)
         if download_package:
             targetdir = targetdir +  apptype
             pkgbase = urlbase + targetdir + slash
