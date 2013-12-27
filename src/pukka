@@ -482,7 +482,7 @@ def slaptSearch(pkg, release):
 
 def slaptUpdate(repo, release):
     """
-    Update slapt-get 14.0 cache
+    Update slapt-get caches
     slaptUpdate()
     """
     args=slaptupdate + repo + ' ' + release + ' ' + mirror
