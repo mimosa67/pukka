@@ -128,6 +128,7 @@ select another mirror. Defaults to http://download.salixos.org/
 These three final options will persistently change the options in 
 the configuration file, but this can of course be freely reversed.
 
+
 = GENERAL OPTIONS =
 
 : **-h, --help**
