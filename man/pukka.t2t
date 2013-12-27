@@ -18,7 +18,7 @@ pukka - the Finnish fisherman's knife for packagers
 
 = DESCRIPTION =
 
-**pukka** is a command line tool that uses data from the Slakware
+**pukka** is a command line tool that uses data from the Slackware
 and Salix repositories for two releases to gather useful information 
 about packages. **slapt-get** is used to download package data and
 also to search for packages with a similar name to the search term 
@@ -44,7 +44,7 @@ different 'source' and 'current' repositories; the default for these is
 14.0 and 14.1. Note that 'current' doesn't necessarily mean the Slackware 
 repository with that name; it is simply the more recent of the two versions 
 being compared, and in intention, the most recent Salix version, even after 
-its release. However, the user can choose to work with any two Slackware / Salix 
+its release. However, the user can choose to work with any two Slackware/Salix 
 versions.
 
 
@@ -53,7 +53,7 @@ versions.
 : **-u, --update**
 update the package caches. This runs **slapt-get --update** to 
 create two fake copies of /var/slapt-get, one for the stable
-repository, one for current. The script then parses these to extract
+repository and one for current. The script then parses these to extract
 information. If data is not present, it will be downloaded without
 asking.
 
@@ -69,7 +69,7 @@ show details about specified package. Its presence or absence in each
 of the four repositories (Salix, Slackware; stable, current) will
 be suggestive of certain scenarios, for instance, if a package was in
 both Slackware and Salix stable, and is in Slackware current, but not in
-Salix stable, it looks like one where Slaix needs its own version for
+Salix stable, it looks like one where Salix needs its own version for
 some reason. But that may or may not still be the case. As ever, judgment
 is needed. In particular, if a package has been renamed, there is no
 way **pukka** can tell. If there is no sign of the package, this option
@@ -92,12 +92,14 @@ running system; however, the options **--nosource**, **--nopackage**,
 can be used to change this.
 
 : **-ns, --nosource**
-disables downloading source files: for instance, **--download {PKG}
---no-source** would download just the package files for {PKG}.
+disables downloading of source files: for instance,
+**--download {PKG} --no-source** would download just the package files
+for {PKG}.
 
 : **-np, --nopackage**
-disables downloading package files: for instance, **--download {PKG} 
---no-package** would download just the source files for {PKG}.
+disables downloading package files: for instance,
+ **--download {PKG} --no-package** would download just the source files
+for {PKG}.
 
 : **-C, --dlcurrent**
 by default, the **--download** option gets files from the stable repository;
@@ -115,7 +117,7 @@ is interpreted as x86_64, otherwise i486 is chosen.
 
 : **-s, --stable** //STRING//
 defines the 'stable' version as something other than the default, e.g.
-13.37 rather than 14.0
+13.37 rather than 14.0.
 
 : **-c, --current** //STRING//
 defines the 'current' version as something other than the default
@@ -125,6 +127,7 @@ select another mirror. Defaults to http://download.salixos.org/
 
 These three final options will persistently change the options in 
 the configuration file, but this can of course be freely reversed.
+
 
 = GENERAL OPTIONS =
 
@@ -138,24 +141,26 @@ and exits.
 : **pukka -p foo**
 will search package repositories using the term
 "foo" and provide information about the package of that name if
-found; if not, **slapt-get --search foo** is called
+found; if not, **slapt-get --search foo** is called.
 
 : **pukka -d foo -ns -a x86_64**
 will download the 64-bit package files for package foo to the current
 directory (not a subdirectory), regardless of the architecture of the 
-running system
+running system.
 
 : **pukka --update**
 will refresh all package data.
 
 : **pukka -P alien**
-lists all packages by packager alien that haven't been packaged yet this time
+lists all packages by packager alien that haven't been packaged yet this
+time.
 
 : **pukka -d foo -C**
 will download the source and package files for package foo that has already been 
 built for the new Salix version. This might be useful when maintaining
 packages during the lifetime of the version (which could be specified to be 13.1,
-for example, adding **--current 13.1**; default is 14.1)
+for example, adding **--current 13.1**; default is 14.1).
+
 
 = WEBSITE =
 
