@@ -3,3 +3,5 @@ Download Slackware package files
 Provide information about dependencies that have been packaged, but are uninstalled
 
 Provide for arm systems and repositories
+
+Fix error when initial download from repos was interrupted (so no packages_data file) by checking for the latter
