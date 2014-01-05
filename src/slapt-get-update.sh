@@ -1,7 +1,7 @@
 #!/bin/sh
 #create package database for arch, version, mirror
 #defaults to http://download.salixos.org
-cd /home/$USER/.config/pukka
+cd ~/.config/pukka
 help() {
   echo "syntax: $(basename $0) i486|x86_64 version [mirror]"
 }
@@ -35,5 +35,9 @@ EOF
 echo "Downloading package data for $arch $ver"
 ROOT=$PWD
 export ROOT
-/usr/sbin/slapt-get --config $PWD/slapt-getrc-$arch-$ver -u> /dev/null
-echo "Done"
+/usr/sbin/slapt-get --config $PWD/slapt-getrc-$arch-$ver --allow-unauthenticated -u> /dev/null
+if [ $? == 0 ] ; then
+	echo "Done"
+else
+	echo "Download failed"
+fi
