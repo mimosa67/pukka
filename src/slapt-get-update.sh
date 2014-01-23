@@ -35,7 +35,7 @@ EOF
 echo "Downloading package data for $arch $ver"
 ROOT=$PWD
 export ROOT
-/usr/sbin/slapt-get --config $PWD/slapt-getrc-$arch-$ver --allow-unauthenticated -u> /dev/null
+/usr/sbin/slapt-get --config $PWD/slapt-getrc-$arch-$ver --allow-unauthenticated -u
 if [ $? == 0 ] ; then
 	echo "Done"
 else
