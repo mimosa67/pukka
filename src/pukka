@@ -429,6 +429,7 @@ def repoToDict(release):
         salixdb, slackdb = {}, {} # initialise empty dicts
         pkgrelfield=2
         for pkg in db: # allocate to salix or slackware
+	#### !!!!! what about packages in both Slaix and Slackware?
             fields = db[pkg] # avoid consulting dict twice, while improving readability :)
             if stripNum(fields[pkgrelfield]): # if pkgrel has any letters, it's a Salix one
                 salixdb.update({pkg:fields})

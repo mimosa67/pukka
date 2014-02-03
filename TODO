@@ -5,3 +5,7 @@ Provide information about dependencies that have been packaged, but are uninstal
 Provide for arm systems and repositories
 
 Fix error when initial download from repos was interrupted (so no packages_data file) by checking for the latter
+# I think this is OK now
+
+As part of dealing better with SLackware packages, do not assume that if there is a Slack package, there isn't a Salix one
+#this seems to be happening at the moment; e.g. itstool
