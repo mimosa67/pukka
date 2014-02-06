@@ -10,7 +10,7 @@
 #                                                                             #
 # pukka - a script to find subdependencies                              #
 #                                                                             #
-# Copyright Tim Beech <tim~beech~at~gmail~dot~com>.                      #
+# Copyright Tim Beech <tim~dot~beech~at~gmail~dot~com>.                      #
 #                                                                             #
 # Partly based on Frédéric Galusik's code from pkgtxt2db
 # and a script from SaLT by Cyrille Pontvieux.
